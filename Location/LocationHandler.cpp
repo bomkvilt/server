@@ -72,10 +72,16 @@ size_t LocationHandler::CalculateMatch(const Location &l, const std::string &Url
     return Url == l.Expr ? 1 : 0;
 }
 
-size_t LocationHandler::CalculatePrefix(const Location &l, const std::string &Url) {
+#define NORMALISE(STR) if (STR.back() != '/') STR += '/'
+
+size_t LocationHandler::CalculatePrefix(const Location &l, std::string Url) {
+    std::string Exp = l.Expr;
+    NORMALISE(Url);
+    NORMALISE(Exp);
+
     std::regex e("([^/^[:s:]]*/)");
-    std::sregex_iterator Ei(l.Expr.begin(), l.Expr.end(), e);
-    std::sregex_iterator Ui(Url.begin(),   Url.end(),     e);
+    std::sregex_iterator Ei(Exp.begin(), Exp.end(), e);
+    std::sregex_iterator Ui(Url.begin(), Url.end(), e);
     std::sregex_iterator end;
 
     size_t factor = 0;

@@ -48,6 +48,8 @@ namespace location {
         message::Message ProcessMessage(const message::Message &Message);
 
     protected:
+        std::string GetClearPath(std::string Path);
+
         message::Message on_error(const message::Message& Message);
         message::Message on_file (const message::Message& Message);
         message::Message on_app  (const message::Message& Message);

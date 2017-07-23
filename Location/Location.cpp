@@ -15,6 +15,23 @@ message::Message Location::ProcessMessage(const message::Message &Message) {
     }
 }
 
+std::string Location::GetClearPath(std::string Path) {
+    auto MItr = Path.begin();
+    auto MEnd = Path.end();
+    auto EItr = Expr.begin();
+    auto EEnd = Expr.end();
+    while (MItr != MEnd && EItr != EEnd) {
+        if (*MItr != *EItr)
+            break;
+        ++MItr; ++EItr;
+    }
+
+    std::string Clear;
+    std::copy(MItr, MEnd
+            , std::back_inserter(Clear));
+    return Clear;
+}
+
 message::Message Location::on_error(const message::Message &Message) {
     message::Message tmp;
     tmp.Code.first  = "404";
@@ -24,7 +41,7 @@ message::Message Location::on_error(const message::Message &Message) {
 }
 
 message::Message Location::on_file(const message::Message &Message) {
-    const std::string Path = BaseRoot + Root + Message.Path;
+    const std::string Path = BaseRoot + Root + GetClearPath(Message.Path);
     std::ifstream in(Path);
     in >> std::noskipws;
     if (!in.is_open() || !MIME)

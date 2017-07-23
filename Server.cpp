@@ -31,15 +31,13 @@ Server::ptr Server::Create() {
 
 /****************************************|  |****************************************/
 
-void Server::Start(bool bBlockThread) {
+void Server::Start() {
     states.AcessLog << "Server is started "
-                    << sizeof(ClientConnection)
                     << std::endl;
     states.bStarted = 1;
     update_dependeces();
     do_accept();
-    if (bBlockThread) service.run();
-    else              service.poll();
+    service.run();
 }
 
 void Server::Stop() {
@@ -58,12 +56,6 @@ void Server::Stop() {
 ServerConfig& Server::GetConfig() {
     return states;
 }
-
-/*/
-void Server::SetConfig(std::string PathToCnf) {
-    update_dependeces();
-}
-/*/
 
 size_t Server::ClientCount() const {
     return clients.size() - 1;

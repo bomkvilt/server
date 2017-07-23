@@ -38,7 +38,7 @@ namespace location {
     protected:
         size_t CalculateRelivant(const Location& l, const std::string& Url);
         size_t CalculateMatch (const Location& l, const std::string& Url);
-        size_t CalculatePrefix(const Location& l, const std::string& Url);
+        size_t CalculatePrefix(const Location &l,       std::string Url);
         size_t CalculateRegexp(const Location& l, const std::string& Url);
     };
 

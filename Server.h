@@ -60,8 +60,7 @@ namespace srv {
         static ptr Create();
 
     public:     /************************| Control |************************/
-        void Start(bool bBlockThread = 1);
-
+        void Start();
         void Stop();
 
     protected:  /************************| Members |************************/
@@ -74,8 +73,6 @@ namespace srv {
     public:
         //***| Getters && Setters |
         ServerConfig &GetConfig();
-
-        //void SetConfig(std::string PathToCnf);
 
         size_t ClientCount() const;
 
