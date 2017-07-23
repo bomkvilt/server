@@ -29,6 +29,10 @@ Server::ptr Server::Create() {
     return ptr(new Server());
 }
 
+Server::~Server() {
+    Stop();
+}
+
 /****************************************|  |****************************************/
 
 void Server::Start() {
@@ -45,6 +49,8 @@ void Server::Stop() {
     states.AcessLog << "Server is stopping..";
 
     states.bStarted = 0;
+    for (auto& i : clients)
+        i->Stop();
     service.stop();
     acceptor.cancel();
 

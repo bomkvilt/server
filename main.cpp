@@ -22,10 +22,10 @@ message::Message ExampleApp(const message::Message& MSG) {
 int main(int argc, char* argv[]) {
     // parse arguments
     if (argc > 2) {
-        std::cout << argv[0] << " [port]" << std::endl;
+        std::cout << argv[0] << " [port = 8001]" << std::endl;
         return 1;
     }
-    uint16_t Port = argc == 1 ? 8001 : boost::lexical_cast<uint16_t>(argv[1]);
+    uint16_t Port = argc == 1 ? (uint16_t)8001 : boost::lexical_cast<uint16_t>(argv[1]);
 
     // file server location
     location::Location FileLocation;

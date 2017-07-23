@@ -58,6 +58,7 @@ namespace srv {
 
     public:
         static ptr Create();
+        ~Server();
 
     public:     /************************| Control |************************/
         void Start();
