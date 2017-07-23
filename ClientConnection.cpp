@@ -115,7 +115,7 @@ void ClientConnection::on_read(const ErrorCode& err, size_t bytes) {
     check(!err) on_error(err);      //TODO: check try again
 
     message::Message taken   = (ReadBuffer);
-    message::Message reponse = Config.Locations.ResolvRequet(taken);
+    message::Message reponse = Config.Locations.ResolveRequest(taken);
     WriteBiffer << reponse;
     do_write();
     ResolveParametrs(taken);

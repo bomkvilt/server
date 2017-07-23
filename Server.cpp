@@ -6,14 +6,14 @@ using namespace srv;
 
 ServerConfig::ServerConfig() :
     bStarted        (false),
-    bAccept         (true),
+    //bAccept         (true),
     Port            (8001),
     WorkPath        (""),
     MIME_Path       (""),
-    AcessLog        (std::cout),
+    AccessLog        (std::cout),
     ErrorLog        (std::cerr),
-    MIME            (nullptr),
-    MaxConections   (1024)
+    MIME            (nullptr)
+    //MaxConections   (1024)
 {
     MIME = MIME_Detector::Create();
 }
@@ -36,17 +36,17 @@ Server::~Server() {
 /****************************************|  |****************************************/
 
 void Server::Start() {
-    states.AcessLog << "Server is started "
+    states.AccessLog << "Server is started "
                     << std::endl;
     states.bStarted = 1;
-    update_dependeces();
+    update_dependencies();
     do_accept();
     service.run();
 }
 
 void Server::Stop() {
     check(states.bStarted);
-    states.AcessLog << "Server is stopping..";
+    states.AccessLog << "Server is stopping..";
 
     states.bStarted = 0;
     for (auto& i : clients)
@@ -54,7 +54,7 @@ void Server::Stop() {
     service.stop();
     acceptor.cancel();
 
-    states.AcessLog << " OK"
+    states.AccessLog << " OK"
                     << std::endl;
 }
 
@@ -83,7 +83,7 @@ Server::client_wptr Server::NewClient() {
 /****************************************|  |****************************************/
 
 void Server::HandleAccept(Server::client_wptr Client, const Server::ErrorCode &Err) {
-    states.AcessLog << " -- Client connected"
+    states.AccessLog << " -- Client connected"
                     << std::endl;
     Client.lock()->Start();
     do_accept();
@@ -94,7 +94,7 @@ void Server::HandleUnbind(Server::client_wptr Client) {
     auto itr    = std::find(clients.begin(), clients.end(), shared);
     clients.erase(itr);
 
-    states.AcessLog << " -- Client disconnected; "
+    states.AccessLog << " -- Client disconnected; "
                     << "clients: " << ClientCount()
                     << std::endl;
 }
@@ -107,7 +107,7 @@ void Server::do_accept() {
     );
 }
 
-void Server::update_dependeces() {
+void Server::update_dependencies() {
     states.MIME->UpdateBase(states.MIME_Path);
     states.Locations.SetMIME(states.MIME);
     states.Locations.SetRoot(states.WorkPath);

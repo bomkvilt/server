@@ -9,12 +9,12 @@ LocationHandler::LocationHandler() {
     DefaultLocation.ResultType = LORT_ERROR;
 }
 
-message::Message LocationHandler::ResolvRequet(const message::Message& Message) {
+message::Message LocationHandler::ResolveRequest(const message::Message &Message) {
     size_t max = 0;
     auto& Loc  = DefaultLocation;
     auto& Url  = Message.Path;
     for (auto& i : Locations) {
-        size_t tmp = CalculateRelivant(i,Url);
+        size_t tmp = CalculateRelevant(i, Url);
         if (tmp && tmp >= max) {
             max = tmp;
             Loc = i;
@@ -54,7 +54,7 @@ LocationHandler& LocationHandler::SetRoot(std::string Root) {
     return *this;
 }
 
-size_t LocationHandler::CalculateRelivant(const Location &l, const std::string& Url) {
+size_t LocationHandler::CalculateRelevant(const Location &l, const std::string &Url) {
     const size_t match    = 10000;
     const size_t prefix_f = 200;
     const size_t regex    = 100;

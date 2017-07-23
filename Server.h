@@ -19,17 +19,17 @@ namespace srv {
      */
     struct ServerConfig {
         bool bStarted;
-        bool bAccept;
+        //bool bAccept;
 
         unsigned short            Port;
         std::string               WorkPath;
         std::string               MIME_Path;
-        std::ostream&             AcessLog;
+        std::ostream&             AccessLog;
         std::ostream&             ErrorLog;
         MIME_Detector::ptr        MIME;
         location::LocationHandler Locations;
 
-        size_t MaxConections;
+        //size_t MaxConnections;
 
     public:
         ServerConfig();
@@ -43,9 +43,8 @@ namespace srv {
             public srv::enable_weak_from_this<Server>,
             boost::noncopyable {
     public:
-        typedef Server self_type;
-        typedef std::shared_ptr<Server> ptr;
-        typedef std::weak_ptr<Server> wptr;
+        DEFINE_SELF(Server);
+        DEFINE_PRS(Server);
 
         typedef ClientConnection::ptr client_ptr;
         typedef ClientConnection::wptr client_wptr;
@@ -86,7 +85,7 @@ namespace srv {
 
         void do_accept();
 
-        void update_dependeces();
+        void update_dependencies();
     };
 
 

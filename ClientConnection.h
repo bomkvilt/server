@@ -42,13 +42,12 @@ namespace Conennection {
     class ClientConnection :
             public srv::enable_weak_from_this<ClientConnection>,
             boost::noncopyable {
-    private:
-        typedef ClientConnection self_type;
-        typedef boost::system::error_code ErrorCode;
 
     public:
-        typedef std::shared_ptr<self_type> ptr;
-        typedef std::weak_ptr<self_type> wptr;
+        DEFINE_SELF(ClientConnection);
+        DEFINE_PRS(ClientConnection);
+
+        typedef boost::system::error_code ErrorCode;
         typedef boost::function<void()> on_stop_clb;
 
     protected:  /************************|  |************************/
@@ -71,7 +70,7 @@ namespace Conennection {
                 Callback clb
         ) {
             auto tmp = Create(service, Config);
-            tmp->SetStopCollback(clb);
+            tmp->SetStopCallback(clb);
             return tmp;
         }
 
@@ -99,7 +98,7 @@ namespace Conennection {
         ip::tcp::socket &Socket();
 
         template<typename Callback>
-        void SetStopCollback(Callback clb) {
+        void SetStopCallback(Callback clb) {
             on_stop = MEM_FF1(clb, weak_from_this());
         }
 

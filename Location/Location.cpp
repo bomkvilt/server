@@ -35,7 +35,7 @@ std::string Location::GetClearPath(std::string Path) {
 message::Message Location::on_error(const message::Message &Message) {
     message::Message tmp;
     tmp.Code.first  = "404";
-    tmp.Code.second = "Not found"; //TODO::common code header
+    tmp.Code.second = "Not found";
     tmp.Body = "";
     return tmp;
 }

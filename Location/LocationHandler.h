@@ -19,7 +19,7 @@ namespace location {
     public:
         LocationHandler();
 
-        message::Message ResolvRequet(const message::Message& Message);
+        message::Message ResolveRequest(const message::Message &Message);
 
         FLocations& GetLocations();
         LocationHandler& SetLocations(FLocations& l);
@@ -36,7 +36,7 @@ namespace location {
         LocationHandler& SetRoot(std::string Root);
 
     protected:
-        size_t CalculateRelivant(const Location& l, const std::string& Url);
+        size_t CalculateRelevant(const Location &l, const std::string &Url);
         size_t CalculateMatch (const Location& l, const std::string& Url);
         size_t CalculatePrefix(const Location &l,       std::string Url);
         size_t CalculateRegexp(const Location& l, const std::string& Url);

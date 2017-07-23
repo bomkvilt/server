@@ -19,6 +19,7 @@ namespace srv
         typedef std::map<std::string, std::string> FMIME_table;
 
     public:
+        DEFINE_SELF(MIME_Detector);
         DEFINE_PRS(MIME_Detector);
 
     protected:  /************************| Construction |************************/
@@ -32,7 +33,7 @@ namespace srv
         void ClearBase();
 
     public:
-        static std::string GetExtantion(std::string FileName);
+        static std::string GetExtension(std::string FileName);
         static std::string GetName(std::string FileName);
         std::string GetMIME(const std::string& FileName);
 

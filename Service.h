@@ -18,6 +18,8 @@
 #define MEM_FF1(x,y)    boost::bind(x, y)
 #define MEM_FF2(x,y,z)  boost::bind(x, y,z)
 
+#define DEFINE_SELF(CLASS) \
+        typedef CLASS self_type
 #define DEFINE_PRS(CLASS) \
         typedef std::shared_ptr<CLASS>     ptr; \
         typedef std::weak_ptr  <CLASS>     wptr
