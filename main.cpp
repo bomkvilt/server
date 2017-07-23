@@ -1,4 +1,5 @@
-#include <fstream>
+#include <boost/thread.hpp>
+#include <boost/lexical_cast.hpp>
 #include "Server.h"
 
 
@@ -19,6 +20,13 @@ message::Message ExampleApp(const message::Message& MSG) {
 }
 
 int main(int argc, char* argv[]) {
+    // parse arguments
+    if (argc > 2) {
+        std::cout << argv[0] << " [port]" << std::endl;
+        return 1;
+    }
+    uint16_t Port = argc == 1 ? 8001 : boost::lexical_cast<uint16_t>(argv[1]);
+
     // file server location
     location::Location FileLocation;
     FileLocation.ResultType = location::LORT_FILE;
@@ -32,13 +40,30 @@ int main(int argc, char* argv[]) {
     AppLocation.Expr       = "/app";
     AppLocation.AppBack    = MEM_FF1(ExampleApp, _1);
 
-
+    // create server
     auto server = Server::Create();
     server->GetConfig().Locations.SetLocation(FileLocation);
     server->GetConfig().Locations.SetLocation(AppLocation);
     server->GetConfig().WorkPath    = "/home/kvilt/Downloads";
     server->GetConfig().MIME_Path   = "/home/kvilt/Downloads/MIME.txt";
-    server->GetConfig().Port        = 8001;
-    server->Start();
-    std::cout << "ll" << std::endl;
+    server->GetConfig().Port        = Port;
+
+    // launch one
+    boost::thread t ( [&server](){
+        server->Start();
+    });
+    t.detach();
+
+    // waiting for stop
+    std::string buff;
+    while(true) {
+        getline(std::cin, buff);
+        if (buff == "stop") {
+            server->Stop();
+            break;
+        }
+        buff = "";
+    }
+
+    return 0;
 }

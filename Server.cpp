@@ -41,8 +41,9 @@ void Server::Start() {
 }
 
 void Server::Stop() {
-    states.AcessLog << "Server is stopping.."
-                    << std::endl;
+    check(states.bStarted);
+    states.AcessLog << "Server is stopping..";
+
     states.bStarted = 0;
     service.stop();
     acceptor.cancel();
