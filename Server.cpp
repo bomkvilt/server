@@ -20,7 +20,7 @@ ServerConfig::ServerConfig() :
 
 
 Server::Server() :
-    states(),
+    config(),
     service(),
     acceptor(service)
 {}
@@ -36,32 +36,32 @@ Server::~Server() {
 /****************************************|  |****************************************/
 
 void Server::Start() {
-    states.AccessLog << "Server is started "
+    config.AccessLog << "Server is started "
                     << std::endl;
-    states.bStarted = 1;
+    config.bStarted = 1;
     update_dependencies();
     do_accept();
     service.run();
 }
 
 void Server::Stop() {
-    check(states.bStarted);
-    states.AccessLog << "Server is stopping..";
+    check(config.bStarted);
+    config.AccessLog << "Server is stopping..";
 
-    states.bStarted = 0;
+    config.bStarted = 0;
     for (auto& i : clients)
         i->Stop();
     service.stop();
     acceptor.cancel();
 
-    states.AccessLog << " OK"
+    config.AccessLog << " OK"
                     << std::endl;
 }
 
 /****************************************|  |****************************************/
 
 ServerConfig& Server::GetConfig() {
-    return states;
+    return config;
 }
 
 size_t Server::ClientCount() const {
@@ -73,7 +73,7 @@ size_t Server::ClientCount() const {
 Server::client_wptr Server::NewClient() {
     auto tmp = ClientConnection::Create(
             service,
-            states,
+            config,
             MEM_FN1(HandleUnbind, _1)
     );
     clients.push_back(tmp);
@@ -83,7 +83,7 @@ Server::client_wptr Server::NewClient() {
 /****************************************|  |****************************************/
 
 void Server::HandleAccept(Server::client_wptr Client, const Server::ErrorCode &Err) {
-    states.AccessLog << " -- Client connected"
+    config.AccessLog << " -- Client connected"
                     << std::endl;
     Client.lock()->Start();
     do_accept();
@@ -94,7 +94,7 @@ void Server::HandleUnbind(Server::client_wptr Client) {
     auto itr    = std::find(clients.begin(), clients.end(), shared);
     clients.erase(itr);
 
-    states.AccessLog << " -- Client disconnected; "
+    config.AccessLog << " -- Client disconnected; "
                     << "clients: " << ClientCount()
                     << std::endl;
 }
@@ -108,8 +108,8 @@ void Server::do_accept() {
 }
 
 void Server::update_dependencies() {
-    states.MIME->UpdateBase(states.MIME_Path);
-    states.Locations.SetMIME(states.MIME);
-    states.Locations.SetRoot(states.WorkPath);
-    acceptor = ip::tcp::acceptor(service, ip::tcp::endpoint(ip::tcp::v4(), states.Port));
+    config.MIME->UpdateBase(config.MIME_Path);
+    config.Locations.SetMIME(config.MIME);
+    config.Locations.SetRoot(config.WorkPath);
+    acceptor = ip::tcp::acceptor(service, ip::tcp::endpoint(ip::tcp::v4(), config.Port));
 }

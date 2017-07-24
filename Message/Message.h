@@ -62,7 +62,6 @@ namespace message {
         void ParsHeader(const std::string& Header);
     };
 
-
 }
 }
 

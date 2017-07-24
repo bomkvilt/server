@@ -24,7 +24,7 @@ include_directories(${Boost_INCLUDE_DIR})
 link_directories   (${Boost_LIBRARY_DIR})
 
 #
-set(CMAKE_CXX_FLAGS "-lboost_system -lboost_thread")
+set(CMAKE_CXX_FLAGS "-Wall")
 add_definitions(${CMAKE_CXX_FLAGS})
 
 # Boost check status

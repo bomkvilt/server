@@ -13,9 +13,9 @@
 using namespace srv::Conennection;
 
 ClientStates::ClientStates(io_service &service) :
+    bStarted(false),
     Timer(service),
-    Timeout(7000),
-    bStarted(false)
+    Timeout(7000)
 {}
 
 ClientConnection::ClientConnection(

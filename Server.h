@@ -64,7 +64,7 @@ namespace srv {
         void Stop();
 
     protected:  /************************| Members |************************/
-        ServerConfig      states;
+        ServerConfig      config;
         io_service        service;
         ip::tcp::acceptor acceptor;
 

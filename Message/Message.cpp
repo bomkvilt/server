@@ -72,6 +72,7 @@ Message& Message::SetData(const std::string& MSG) {
             , std::istream_iterator<char>()
             , std::back_inserter(Body)
     );
+    return *this;
 }
 
 Message &Message::SetDirective(const std::string Name, const std::string Value) {

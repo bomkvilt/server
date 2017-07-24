@@ -74,14 +74,12 @@ namespace Conennection {
             return tmp;
         }
 
-    public:     /************************|  |************************/
-        //***| Control |
+    public:     /************************| Control |************************/
         void Start();
 
         void Stop();
 
-    protected:  /************************|  |************************/
-        //***| Members |
+    protected:  /************************| Members |************************/
         //***| members |
         ip::tcp::socket socket;
         ClientStates    states;

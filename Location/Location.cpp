@@ -1,6 +1,7 @@
 
 #include <fstream>
 #include <iterator>
+#include <exception>
 #include "Location.h"
 
 using namespace srv::location;
@@ -13,6 +14,9 @@ message::Message Location::ProcessMessage(const message::Message &Message) {
         CASER(LORT_FILE)    on_file (Message);
         CASER(LORT_APP)     on_app  (Message);
     }
+    throw std::runtime_error(
+            " ## Unknown type of Message type; at " + __LINE__
+    );
 }
 
 std::string Location::GetClearPath(std::string Path) {
