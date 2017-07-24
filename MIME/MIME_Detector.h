@@ -6,6 +6,8 @@
 #include <memory>
 #include "../Service.h"
 
+#include <iostream>
+
 namespace srv
 {
 

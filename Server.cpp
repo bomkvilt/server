@@ -46,16 +46,23 @@ void Server::Start() {
 
 void Server::Stop() {
     check(config.bStarted);
-    config.AccessLog << "Server is stopping..";
+    config.AccessLog << "Server is stopping.."
+                     << std::endl;
 
     config.bStarted = 0;
-    for (auto& i : clients)
-        i->Stop();
+    RemoveClients();
     service.stop();
     acceptor.cancel();
 
-    config.AccessLog << " OK"
+    config.AccessLog << " Server stopped"
                     << std::endl;
+}
+
+void Server::RemoveClients() {
+    while (clients.size()) {
+        clients.back()->Stop();
+        clients.pop_back();
+    }
 }
 
 /****************************************|  |****************************************/
@@ -74,7 +81,7 @@ Server::client_wptr Server::NewClient() {
     auto tmp = ClientConnection::Create(
             service,
             config,
-            MEM_FN1(HandleUnbind, _1)
+            MEM_FC1(HandleUnbind, _1)
     );
     clients.push_back(tmp);
     return clients.back()->weak_from_this();
@@ -103,7 +110,7 @@ void Server::do_accept() {
     auto Client = NewClient();
     acceptor.async_accept(
             Client.lock()->Socket(),
-            MEM_FN2(HandleAccept, Client, _1)
+            MEM_FC2(HandleAccept, Client, _1)
     );
 }
 

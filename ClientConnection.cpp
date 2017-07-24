@@ -89,7 +89,7 @@ void ClientConnection::do_read() {
             socket,
             ReadBuffer,
             '\n',
-            MEM_FN2(on_read,_1,_2)
+            MEM_FC2(on_read,_1,_2)
     );
     do_ping();
 }
@@ -99,12 +99,11 @@ void ClientConnection::do_write() {
     async_write(
             socket,
             WriteBiffer,
-            MEM_FN2(on_write,_1,_2)
+            MEM_FC2(on_write,_1,_2)
     );
 }
 
 void ClientConnection::do_ping() {
-    std::cout << " << Ping" << std::endl;
     states.Timer.expires_from_now(states.Timeout);
     states.Timer.async_wait(MEM_FN(on_ping_check));
 }

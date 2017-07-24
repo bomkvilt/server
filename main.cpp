@@ -60,10 +60,14 @@ int main(int argc, char* argv[]) {
         getline(std::cin, buff);
         if (buff == "stop") {
             server->Stop();
+            boost::this_thread::sleep(
+                boost::posix_time::millisec(100)
+            );
             break;
         }
         buff = "";
     }
+
 
     return 0;
 }

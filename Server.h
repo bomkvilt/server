@@ -41,7 +41,8 @@ namespace srv {
      */
     class Server :
             public srv::enable_weak_from_this<Server>,
-            boost::noncopyable {
+            boost::noncopyable
+    {
     public:
         DEFINE_SELF(Server);
         DEFINE_PRS(Server);
@@ -62,6 +63,8 @@ namespace srv {
     public:     /************************| Control |************************/
         void Start();
         void Stop();
+
+        void RemoveClients();
 
     protected:  /************************| Members |************************/
         ServerConfig      config;

@@ -10,13 +10,20 @@
 
 #define CASER(ARG) case ARG : return
 
-#define MEM_FN(x)       boost::bind(&self_type::x, shared_from_this())
-#define MEM_FN1(x,y)    boost::bind(&self_type::x, shared_from_this(),y)
-#define MEM_FN2(x,y,z)  boost::bind(&self_type::x, shared_from_this(),y,z)
 
 #define MEM_FF(x)       boost::bind(x)
 #define MEM_FF1(x,y)    boost::bind(x, y)
 #define MEM_FF2(x,y,z)  boost::bind(x, y,z)
+#define MEM_FF3(x,y,z,p)boost::bind(x, y,z,p)
+
+#define MEM_FN(x)       MEM_FF1(&self_type::x, shared_from_this())
+#define MEM_FN1(x,y)    MEM_FF2(&self_type::x, shared_from_this(),y)
+#define MEM_FN2(x,y,z)  MEM_FF3(&self_type::x, shared_from_this(),y,z)
+
+#define MEM_FC(x)       MEM_FF1(&self_type::x, this)
+#define MEM_FC1(x,y)    MEM_FF2(&self_type::x, this,y)
+#define MEM_FC2(x,y,z)  MEM_FF3(&self_type::x, this,y,z)
+
 
 #define DEFINE_SELF(CLASS) \
         typedef CLASS self_type
@@ -27,21 +34,19 @@
 
 
 namespace srv {
-    using namespace std;
-
 
     template<typename _Tp>
     class enable_weak_from_this:
-            public enable_shared_from_this<_Tp>
+            public std::enable_shared_from_this<_Tp>
     {
     public:
-        weak_ptr<_Tp>
+        std::weak_ptr<_Tp>
         weak_from_this()
-        { return weak_ptr<_Tp>(this->shared_from_this()); }
+        { return std::weak_ptr<_Tp>(this->shared_from_this()); }
 
-        weak_ptr<const _Tp>
+        std::weak_ptr<const _Tp>
         weak_from_this() const
-        { return weak_ptr<_Tp>(this->shared_from_this()); }
+        { return std::weak_ptr<_Tp>(this->shared_from_this()); }
     };
 }
 
