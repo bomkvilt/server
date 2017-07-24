@@ -10,7 +10,7 @@ ServerConfig::ServerConfig() :
     Port            (8001),
     WorkPath        (""),
     MIME_Path       (""),
-    AccessLog        (std::cout),
+    AccessLog       (std::cout),
     ErrorLog        (std::cerr),
     MIME            (nullptr)
     //MaxConections   (1024)
@@ -19,23 +19,23 @@ ServerConfig::ServerConfig() :
 }
 
 
-Server::Server() :
+AServer::AServer() :
     config(),
     service(),
     acceptor(service)
 {}
 
-Server::ptr Server::Create() {
-    return ptr(new Server());
+AServer::ptr AServer::Create() {
+    return ptr(new AServer());
 }
 
-Server::~Server() {
+AServer::~AServer() {
     Stop();
 }
 
 /****************************************|  |****************************************/
 
-void Server::Start() {
+void AServer::Start() {
     config.AccessLog << "Server is started "
                     << std::endl;
     config.bStarted = 1;
@@ -44,7 +44,7 @@ void Server::Start() {
     service.run();
 }
 
-void Server::Stop() {
+void AServer::Stop() {
     check(config.bStarted);
     config.AccessLog << "Server is stopping.."
                      << std::endl;
@@ -54,30 +54,34 @@ void Server::Stop() {
     service.stop();
     acceptor.cancel();
 
-    config.AccessLog << " Server stopped"
+    config.AccessLog << "Server stopped"
                     << std::endl;
 }
 
-void Server::RemoveClients() {
-    while (clients.size()) {
+void AServer::Refresh() {
+    update_dependencies();
+    config.AccessLog << "Server updated"
+                     << std::endl;
+}
+
+void AServer::RemoveClients() {
+    while (clients.size())
         clients.back()->Stop();
-        clients.pop_back();
-    }
 }
 
 /****************************************|  |****************************************/
 
-ServerConfig& Server::GetConfig() {
+ServerConfig& AServer::GetConfig() {
     return config;
 }
 
-size_t Server::ClientCount() const {
+size_t AServer::ClientCount() const {
     return clients.size() - 1;
 }
 
 /****************************************|  |****************************************/
 
-Server::client_wptr Server::NewClient() {
+AServer::client_wptr AServer::NewClient() {
     auto tmp = ClientConnection::Create(
             service,
             config,
@@ -89,14 +93,14 @@ Server::client_wptr Server::NewClient() {
 
 /****************************************|  |****************************************/
 
-void Server::HandleAccept(Server::client_wptr Client, const Server::ErrorCode &Err) {
+void AServer::HandleAccept(AServer::client_wptr Client, const AServer::ErrorCode &Err) {
     config.AccessLog << " -- Client connected"
                     << std::endl;
     Client.lock()->Start();
     do_accept();
 }
 
-void Server::HandleUnbind(Server::client_wptr Client) {
+void AServer::HandleUnbind(AServer::client_wptr Client) {
     auto shared = Client.lock();
     auto itr    = std::find(clients.begin(), clients.end(), shared);
     clients.erase(itr);
@@ -106,7 +110,7 @@ void Server::HandleUnbind(Server::client_wptr Client) {
                     << std::endl;
 }
 
-void Server::do_accept() {
+void AServer::do_accept() {
     auto Client = NewClient();
     acceptor.async_accept(
             Client.lock()->Socket(),
@@ -114,9 +118,10 @@ void Server::do_accept() {
     );
 }
 
-void Server::update_dependencies() {
+void AServer::update_dependencies() {
     config.MIME->UpdateBase(config.MIME_Path);
-    config.Locations.SetMIME(config.MIME);
-    config.Locations.SetRoot(config.WorkPath);
-    acceptor = ip::tcp::acceptor(service, ip::tcp::endpoint(ip::tcp::v4(), config.Port));
+    config.Locations.SetServer(weak_from_this());
+    try { // if acceptor=>Port == config.Port
+        acceptor = ip::tcp::acceptor(service, ip::tcp::endpoint(ip::tcp::v4(), config.Port));
+    } catch(...) {}
 }

@@ -4,9 +4,9 @@
 #include <boost/enable_shared_from_this.hpp>
 
 
-
+#define checkE(EXP)             if (!(EXP))
 #define check(EXP)              if (!(EXP))         return
-#define checkC(EXP, BODY, RET)  if (!(EXP)) { BODY; return RET; }
+#define checkB(EXP, BODY, RET)  if (!(EXP)) { BODY; return RET; }
 
 #define CASER(ARG) case ARG : return
 
@@ -24,12 +24,14 @@
 #define MEM_FC1(x,y)    MEM_FF2(&self_type::x, this,y)
 #define MEM_FC2(x,y,z)  MEM_FF3(&self_type::x, this,y,z)
 
+#define PTR(CLASS)      std::shared_ptr<CLASS>
+#define WPTR(CLASS)     std::weak_ptr  <CLASS>
 
 #define DEFINE_SELF(CLASS) \
         typedef CLASS self_type
 #define DEFINE_PRS(CLASS) \
-        typedef std::shared_ptr<CLASS>     ptr; \
-        typedef std::weak_ptr  <CLASS>     wptr
+        typedef PTR (CLASS)     ptr; \
+        typedef WPTR(CLASS)     wptr
 
 
 

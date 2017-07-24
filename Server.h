@@ -39,30 +39,32 @@ namespace srv {
     /**
      *
      */
-    class Server :
-            public srv::enable_weak_from_this<Server>,
+    class AServer :
+            public srv::enable_weak_from_this<AServer>,
             boost::noncopyable
     {
     public:
-        DEFINE_SELF(Server);
-        DEFINE_PRS(Server);
+        DEFINE_SELF(AServer);
+        DEFINE_PRS(AServer);
 
-        typedef ClientConnection::ptr client_ptr;
+        typedef ClientConnection::ptr  client_ptr;
         typedef ClientConnection::wptr client_wptr;
 
     protected:
         typedef boost::system::error_code ErrorCode;
 
     protected:  /************************| Construction |************************/
-        Server();
+        AServer();
 
     public:
         static ptr Create();
-        ~Server();
+        ~AServer();
 
     public:     /************************| Control |************************/
         void Start();
         void Stop();
+
+        void Refresh();
 
         void RemoveClients();
 
@@ -82,7 +84,7 @@ namespace srv {
     protected:  /************************|  |************************/
         client_wptr NewClient();
 
-        void HandleAccept(client_wptr Client, const Server::ErrorCode &Err);
+        void HandleAccept(client_wptr Client, const AServer::ErrorCode &Err);
 
         void HandleUnbind(client_wptr Client);
 

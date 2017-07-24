@@ -7,10 +7,9 @@
 #include "../MIME/MIME_Detector.h"
 
 namespace srv {
+/**/class AServer;
 namespace location {
-//*/
-    class LocationHandler;
-//*/
+/**/class LocationHandler;
 
     enum EExprType {
         LEXT_MATCH,
@@ -22,7 +21,8 @@ namespace location {
     enum EResultType {
         LORT_ERROR,
         LORT_FILE,
-        LORT_APP
+        LORT_APP,
+        LORT_CONTROLL
     };
 
     /**
@@ -32,27 +32,33 @@ namespace location {
     {
         friend class LocationHandler;
     public:
-        typedef boost::function<message::Message(const message::Message&)> AppBack_clb;
+        typedef boost::function<message::Message(const message::Message&             )> AppBack_clb;
+        typedef boost::function<message::Message(const message::Message&, PTR(AServer))> Control_clb;
 
     public:
-        EExprType   ExprType;
-        EResultType ResultType;
-        std::string Expr;       // path, prefix or regular expression
-        std::string Root;       // path to fails relative server root(@BaseRoot)
-        AppBack_clb AppBack;    // application callback
+        EExprType    ExprType;
+        EResultType  ResultType;
+        std::string  Expr;         // path, prefix or regular expression
+        std::string  Root;         // path to fails relative server root(@BaseRoot)
+        AppBack_clb  AppBack;      // application callback
+        Control_clb  ControlBack;  // callback for server control
     protected:
-        MIME_Detector::ptr MIME;
-        std::string BaseRoot;   // Server's work dir
+        WPTR(AServer) server;
 
     public:
         message::Message ProcessMessage(const message::Message &Message);
 
     protected:
+        PTR(AServer)       Server();
+        PTR(MIME_Detector) MIME();
+        std::string        BaseRoot();
+
         std::string GetClearPath(std::string Path);
 
-        message::Message on_error(const message::Message& Message);
-        message::Message on_file (const message::Message& Message);
-        message::Message on_app  (const message::Message& Message);
+        message::Message on_error  (const message::Message& Message);
+        message::Message on_file   (const message::Message& Message);
+        message::Message on_app    (const message::Message& Message);
+        message::Message on_control(const message::Message& Message);
     };
 }
 }

@@ -6,6 +6,7 @@
 #include "Location.h"
 
 namespace srv {
+/**/class AServer;
 namespace location {
 
     /**
@@ -26,20 +27,18 @@ namespace location {
         LocationHandler& SetLocation(Location& l);
 
     protected:
-        Location            DefaultLocation;
-        FLocations          Locations;
-        MIME_Detector::ptr  MIME;
-        std::string         Root;
+        Location     DefaultLocation;
+        FLocations   Locations;
+        WPTR(AServer) server;
 
     public:
-        LocationHandler& SetMIME(MIME_Detector::ptr MIME);
-        LocationHandler& SetRoot(std::string Root);
+        LocationHandler& SetServer(WPTR(AServer) server);
 
     protected:
-        size_t CalculateRelevant(const Location &l, const std::string &Url);
-        size_t CalculateMatch (const Location& l, const std::string& Url);
-        size_t CalculatePrefix(const Location &l,       std::string Url);
-        size_t CalculateRegexp(const Location& l, const std::string& Url);
+        size_t CalculateRelevant(const Location& l, const std::string& Url);
+        size_t CalculateMatch   (const Location& l, const std::string& Url);
+        size_t CalculatePrefix  (const Location& l,       std::string  Url);
+        size_t CalculateRegexp  (const Location& l, const std::string& Url);
     };
 
 }

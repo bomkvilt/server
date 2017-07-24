@@ -19,6 +19,21 @@ message::Message ExampleApp(const message::Message& MSG) {
     return Reponse;
 }
 
+message::Message ExampleControl(const message::Message& MSG, PTR(AServer) Server) {
+    Server->GetConfig().Port = 8002;
+    Server->Refresh();
+
+    message::Message Reponse;
+    Reponse.Body = "Migrated to port 8002";
+    Reponse .SetCode    ("200", "OK")
+            .SetProtocol("HTTP/1.1")
+            .SetDirective("Content-Length",      std::to_string(Reponse.Body.size()))
+            .SetDirective("Content-Disposition", "filename=\"Port.html\"")
+            .SetDirective("Content-Type",        "text/html")
+            .SetDirective("Connection",          "close");
+    return Reponse;
+}
+
 int main(int argc, char* argv[]) {
     // parse arguments
     if (argc > 2) {
@@ -32,6 +47,7 @@ int main(int argc, char* argv[]) {
     FileLocation.ResultType = location::LORT_FILE;
     FileLocation.ExprType   = location::LEXT_PREFIX;
     FileLocation.Expr       = "/get";
+    FileLocation.Root       = "";
 
     // application server location
     location::Location AppLocation;
@@ -40,13 +56,21 @@ int main(int argc, char* argv[]) {
     AppLocation.Expr       = "/app";
     AppLocation.AppBack    = MEM_FF1(ExampleApp, _1);
 
+    // application server location
+    location::Location ControlLocation;
+    ControlLocation.ResultType  = location::LORT_CONTROLL;
+    ControlLocation.ExprType    = location::LEXT_PREFIX;
+    ControlLocation.Expr        = "/admin";
+    ControlLocation.ControlBack = MEM_FF2(ExampleControl, _1, _2);
+
     // create server
-    auto server = Server::Create();
+    auto server = AServer::Create();
     server->GetConfig().Locations.SetLocation(FileLocation);
     server->GetConfig().Locations.SetLocation(AppLocation);
-    server->GetConfig().WorkPath    = "/home/kvilt/Downloads";
-    server->GetConfig().MIME_Path   = "/home/kvilt/Downloads/MIME.txt";
-    server->GetConfig().Port        = Port;
+    server->GetConfig().Locations.SetLocation(ControlLocation);
+    server->GetConfig().WorkPath  = "/home/kvilt/Downloads";
+    server->GetConfig().MIME_Path = "/home/kvilt/Downloads/MIME.txt";
+    server->GetConfig().Port      = Port;
 
     // launch one
     boost::thread t ( [&server](){
@@ -54,7 +78,7 @@ int main(int argc, char* argv[]) {
     });
     t.detach();
 
-    // waiting for stop
+    // waiting for a stop
     std::string buff;
     while(true) {
         getline(std::cin, buff);

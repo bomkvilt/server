@@ -24,7 +24,8 @@ namespace Conennection {
     /**
      *
      */
-    struct ClientStates {
+    struct ClientStates
+    {
         bool bStarted;
 
         deadline_timer Timer;
@@ -41,8 +42,8 @@ namespace Conennection {
      */
     class ClientConnection :
             public srv::enable_weak_from_this<ClientConnection>,
-            boost::noncopyable {
-
+            boost::noncopyable
+    {
     public:
         DEFINE_SELF(ClientConnection);
         DEFINE_PRS(ClientConnection);

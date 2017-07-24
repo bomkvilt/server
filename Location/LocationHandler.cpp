@@ -35,23 +35,15 @@ LocationHandler& LocationHandler::SetLocations(LocationHandler::FLocations &l) {
 
 LocationHandler& LocationHandler::SetLocation(Location& l) {
     Locations.push_back(l);
-    Locations.back().MIME     = MIME;
-    Locations.back().BaseRoot = Root;
+    Locations.back().server = server;
     return *this;
 }
 
-LocationHandler& LocationHandler::SetMIME(MIME_Detector::ptr MIME) {
-    this->MIME = MIME;
-    for (auto& i : Locations)
-        i.MIME = MIME;
-    return *this;
-}
-
-LocationHandler& LocationHandler::SetRoot(std::string Root) {
-    this->Root = Root;
-    for (auto& i : Locations)
-        i.BaseRoot = Root;
-    return *this;
+LocationHandler& LocationHandler::SetServer(WPTR(AServer) server) {
+    this->server = server;
+    for (auto& i : Locations) {
+        i.server = server;
+    } return *this;
 }
 
 size_t LocationHandler::CalculateRelevant(const Location &l, const std::string &Url) {
