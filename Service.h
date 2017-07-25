@@ -11,7 +11,11 @@
 
 /**************************************| Switch-case |**************************************/
 
-#define CASER(ARG) case ARG : return
+#define SWITCH(V)  switch(V)
+#define CASE(ARG)  case ARG :
+#define CASER(ARG) CASE(ARG) return
+#define CASEB(ARG) CASE(ARG) break
+#define DEFAULT    default :
 
 //---------------------------
 
@@ -35,11 +39,12 @@ template <typename _Tp, typename _Tq>
 bool Comparator(_Tp l, _Tq r)
 { return l == r; };
 
-#define SWITCH(V)   switch (0) { \
+#define SWITCHM(V)  switch (0) { \
                     default: auto& _VAL_ = V; bool _ALL_ = false;
-#define CASE(ARG)   } if (Comparator(_VAL_,ARG) || _ALL_) { _ALL_ = true;
-#define CASERM(ARG) CASE(ARG) return
-#define DEFAULT     } {
+#define CASEM(ARG)  } if (Comparator(_VAL_,ARG) || _ALL_) { _ALL_ = true;
+#define CASERM(ARG) CASEM(ARG) return
+#define CASEBM(ARG) CASEM(ARG) break
+#define DEFAULTM    } {
 
 
 /**************************************| Functions bind |**************************************/

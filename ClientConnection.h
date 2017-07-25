@@ -18,24 +18,31 @@ namespace srv {
 //*/
 namespace Conennection {
     using namespace boost::asio;
-    namespace asio = boost::asio;
-    namespace Time = boost::posix_time;
+    namespace asio  = boost::asio;
+    namespace time  = boost::posix_time;
+    namespace error = asio::error;
 
-    /**
-     *
-     */
-    struct ClientStates
-    {
-        bool bStarted;
+    namespace service {
 
-        deadline_timer Timer;
-        Time::ptime    LastPing;
-        Time::millisec Timeout;
+        enum EActionType {
+            CCAT_READ,
+            CCAT_WRITE
+        };
 
-    public:
-        ClientStates(io_service &service);
-    };
+        /**
+         *
+         */
+        struct ClientStates {
+            bool bStarted;
 
+            deadline_timer Timer;
+            time::ptime LastPing;
+            time::millisec Timeout;
+
+        public:
+            ClientStates(io_service &service);
+        };
+    }
 
     /**
      *
@@ -82,9 +89,9 @@ namespace Conennection {
 
     protected:  /************************| Members |************************/
         //***| members |
-        ip::tcp::socket socket;
-        ClientStates    states;
-        ServerConfig&   Config;
+        ip::tcp::socket         socket;
+        service::ClientStates   states;
+        ServerConfig&           Config;
 
         asio::streambuf ReadBuffer;
         asio::streambuf WriteBiffer;
@@ -92,7 +99,7 @@ namespace Conennection {
         on_stop_clb on_stop;
     public:
         //***| getters && setters |
-        ClientStates &GetStates();
+        service::ClientStates& GetStates();
 
         ip::tcp::socket &Socket();
 
@@ -106,7 +113,7 @@ namespace Conennection {
 
         void ResolveParametrs(message::AMessage& Message);
 
-        void on_error(const ErrorCode &err);
+        void on_error(const ErrorCode& err, service::EActionType Action);
 
         void do_read();
 

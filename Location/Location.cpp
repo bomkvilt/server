@@ -67,7 +67,7 @@ message::AMessage ALocation::on_error(const message::AMessage &Message) {
 
 message::AMessage ALocation::on_file(const message::AMessage &Message) {
     std::string Path = BaseRoot() + Root + GetClearPath(Message.Path);
-    SWITCH(Message.Method) {
+    SWITCHM(Message.Method) {
         CASERM("GET")   on_file_r(Message, Path);
         CASERM("POST")  on_file_w(Message, Path);
     }}
@@ -88,7 +88,6 @@ message::AMessage ALocation::on_file_r(const message::AMessage& Message, const s
 
     Reponse .SetCode     ("200","OK")
             .SetProtocol ("HTTP/1.1")
-            .SetDirective("Content-Length",      std::to_string(Reponse.Body.size()))
             .SetDirective("Content-Disposition", "attachment; filename=\"" + MIME()->GetName(Message.Path) + "\"")
             .SetDirective("Content-Type",        MIME()->GetMIME(Message.Path))
             .SetDirective("Connection",          "close");
@@ -108,8 +107,7 @@ message::AMessage ALocation::on_file_w(const message::AMessage& Message, const s
     message::AMessage Reponse;
     Reponse .SetCode     ("200","OK")
             .SetProtocol ("HTTP/1.1")
-            .SetDirective("Content-Length",      std::to_string(Reponse.Body.size()))
-            .SetDirective("Connection",          "close");
+            .SetDirective("Connection", "close");
     return Reponse;
 }
 

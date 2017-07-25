@@ -12,7 +12,7 @@
 
 using namespace srv::Conennection;
 
-ClientStates::ClientStates(io_service &service) :
+service::ClientStates::ClientStates(io_service &service) :
     bStarted(false),
     Timer(service),
     Timeout(200000)
@@ -56,7 +56,7 @@ void AClientConnection::Stop() {
 
 /****************************************|  |****************************************/
 
-ClientStates& AClientConnection::GetStates() {
+service::ClientStates& AClientConnection::GetStates() {
     return states;
 }
 
@@ -75,9 +75,19 @@ void AClientConnection::ResolveParametrs(message::AMessage& Message) {
         Stop();
 }
 
-void AClientConnection::on_error(const ErrorCode& err) {
-    check(states.bStarted);
-    std::cout << " -- Connection Error: " << err.message() << std::endl;
+void AClientConnection::on_error(const ErrorCode& err, service::EActionType Action) {
+    using namespace service;
+    SWITCHM(err) {
+        CASERM(error::eof)          Stop();
+        CASEM (error::try_again)
+            SWITCH(Action) {
+                CASER(CCAT_READ)    do_read();
+                CASER(CCAT_WRITE)   do_write();
+            }
+    }}
+    Config.ErrorLog << " -- Connection Error: "
+                    << err.message()
+                    << std::endl;
     Stop();
 }
 
@@ -111,7 +121,7 @@ void AClientConnection::do_ping() {
 /****************************************|  |****************************************/
 
 void AClientConnection::on_read(const ErrorCode& err, size_t bytes) {
-    check(!err) on_error(err);      //TODO: check try again
+    check(!err) on_error(err, service::CCAT_WRITE);
 
     message::AMessage taken   = (ReadBuffer);
     message::AMessage reponse = Config.Locations.ResolveRequest(taken);
@@ -121,12 +131,12 @@ void AClientConnection::on_read(const ErrorCode& err, size_t bytes) {
 }
 
 void AClientConnection::on_write(const AClientConnection::ErrorCode &err, size_t bytes) {
-    check(!err) on_error(err);      //TODO: check try again
+    check(!err) on_error(err, service::CCAT_WRITE);
     do_read();
 }
 
 void AClientConnection::on_ping_check() {
-    auto now = Time::microsec_clock::local_time();
+    auto now = time::microsec_clock::local_time();
     if ((now - states.LastPing) > states.Timeout) {
         Stop();
     } states.LastPing = now;

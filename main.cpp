@@ -12,9 +12,8 @@ message::AMessage ExampleApp(const message::AMessage& MSG) {
 
     Reponse .SetCode     ("200","OK")
             .SetProtocol ("HTTP/1.1")
-            .SetDirective("Content-Length",      std::to_string(Reponse.Body.size()))
             .SetDirective("Content-Disposition", "filename=\"Test.html\"")
-            .SetDirective("Content-Type",        "text/html")
+            .SetDirective("Content-Type",        "text/plain")
             .SetDirective("Connection",          "close");
     return Reponse;
 }
@@ -25,14 +24,16 @@ message::AMessage ExampleControl(const message::AMessage& MSG, PTR(AServer) Serv
 
     message::AMessage Reponse;
     Reponse.Body = "Migrated to port 8002";
-    Reponse .SetCode    ("200", "OK")
-            .SetProtocol("HTTP/1.1")
-            .SetDirective("Content-Length",      std::to_string(Reponse.Body.size()))
+    Reponse .SetCode     ("200", "OK")
+            .SetProtocol ("HTTP/1.1")
             .SetDirective("Content-Disposition", "filename=\"Port.html\"")
             .SetDirective("Content-Type",        "text/html")
             .SetDirective("Connection",          "close");
     return Reponse;
 }
+
+
+
 
 int main(int argc, char* argv[]) {
     // parse arguments
@@ -56,7 +57,7 @@ int main(int argc, char* argv[]) {
     AppLocation.Expr       = "/app";
     AppLocation.AppBack    = MEM_FF1(ExampleApp, _1);
 
-    // application server location
+    // control location
     location::ALocation ControlLocation;
     ControlLocation.ResultType  = location::LORT_CONTROLL;
     ControlLocation.ExprType    = location::LEXT_PREFIX;
@@ -65,9 +66,10 @@ int main(int argc, char* argv[]) {
 
     // create server
     auto server = AServer::Create();
-    server->GetConfig().Locations.SetLocation(FileLocation);
-    server->GetConfig().Locations.SetLocation(AppLocation);
-    server->GetConfig().Locations.SetLocation(ControlLocation);
+    server->GetConfig().Locations
+            .SetLocation(FileLocation)
+            .SetLocation(AppLocation)
+            .SetLocation(ControlLocation);
     server->GetConfig().WorkPath  = "/home/kvilt/Downloads";
     server->GetConfig().MIME_Path = "/home/kvilt/Downloads/MIME.txt";
     server->GetConfig().Port      = Port;

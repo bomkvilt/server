@@ -39,7 +39,7 @@ AMessage &AMessage::SetProtocol(std::string Protocol) {
     return *this;
 }
 
-AMessage& AMessage::SetCode(const AMessage::FDirective& Code) {
+AMessage& AMessage::SetCode(const AMessage::UDirective& Code) {
     return SetCode(Code.first, Code.second);
 }
 
@@ -49,7 +49,7 @@ AMessage& AMessage::SetCode(const std::string Code, const std::string Descriptio
     return *this;
 }
 
-AMessage &AMessage::SetDirective(const AMessage::FDirective &Directive) {
+AMessage &AMessage::SetDirective(const AMessage::UDirective &Directive) {
     return SetDirective(Directive.first, Directive.second);
 }
 
@@ -89,22 +89,29 @@ AMessage &AMessage::SetDirective(const std::string Name, const std::string Value
 
 
 
-std::string AMessage::GetDirective(std::string Name) {
+std::string& AMessage::GetDirective(std::string Name) {
     for (auto& itr : Directives)
         if (itr.first == Name)
             return itr.second;
-    return "";
+    Directives.emplace_back(Name, "");
+    return Directives.back().second;
 }
 
 std::string AMessage::GetHeader() {
+    do_preprocess();
+
     std::string Header =  Hat();
-    for (auto& itr : Directives)
-        Header += itr.first + ": " + itr.second + "\r\n";
+    for (auto& itr : Directives) {
+        if (itr.second.length())
+            Header += GetLine(itr);
+    }
     Header += "\r\n";
     return Header;
 }
 
 std::string AMessage::GetMessage() {
+    if (Method == "HEAD")
+        return GetHeader();
     return GetHeader() + Body;
 }
 
@@ -124,6 +131,16 @@ std::string AMessage::ResponceHat() {
     return Protocol      + " "
            + Code.first  + " "
            + Code.second + "\r\n";
+}
+
+std::string AMessage::GetLine(const UDirective& d) {
+    return d.first + ": " + d.second + "\r\n";
+}
+
+void AMessage::do_preprocess() {
+    auto& length = GetDirective("Content-Length");
+    if (!length.length())
+        length = std::to_string(Body.length());
 }
 
 #define SPACE "[[:s:]]+"

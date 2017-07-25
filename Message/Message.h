@@ -14,8 +14,8 @@ namespace message {
      */
     class AMessage {
     public:
-        typedef std::pair<std::string, std::string> FDirective;
-        typedef std::vector<FDirective> FDirectives;
+        typedef std::pair<std::string, std::string> UDirective;
+        typedef std::vector<UDirective> UDirectives;
 
     public:
         AMessage()               = default;
@@ -29,8 +29,8 @@ namespace message {
         std::string Protocol;
 
         std::string Path;
-        FDirective  Code;
-        FDirectives Directives;
+        UDirective  Code;
+        UDirectives Directives;
         std::string Body;
 
     public:
@@ -40,24 +40,26 @@ namespace message {
         AMessage& SetMethod  (std::string Method);
         AMessage& SetProtocol(std::string Protocol);
 
-        AMessage& SetCode(const FDirective& Code);
+        AMessage& SetCode(const UDirective& Code);
         AMessage& SetCode(const std::string Code, const std::string Description);
 
-        AMessage& SetDirective(const FDirective &Directive);
+        AMessage& SetDirective(const UDirective &Directive);
         AMessage& SetDirective(const std::string Name, const std::string Value);
 
         AMessage& SetData(const std::string& MSG);
 
     public:
-        std::string GetDirective(std::string Name);
-        std::string GetHeader();
-        std::string GetMessage();
+        std::string& GetDirective(std::string Name);
+        std::string  GetHeader();
+        std::string  GetMessage();
 
     protected:
         std::string Hat();
         std::string RequestHat();
         std::string ResponceHat();
+        std::string GetLine(const UDirective& d);
 
+        void do_preprocess();
         void ParsHat   (const std::string& Hat);
         void ParsHeader(const std::string& Header);
     };
