@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.7)
 project(Server)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 
 #
@@ -9,11 +9,11 @@ set(SOURCE_FILES
         main.cpp
         Service.h
         Server.cpp                      Server.h
-        ClientConnection.cpp            ClientConnection.h
-        MIME/MIME_Detector.cpp          MIME/MIME_Detector.h
-        Message/Message.cpp             Message/Message.h
-        Location/Location.cpp           Location/Location.h
-        Location/LocationHandler.cpp    Location/LocationHandler.h)
+        ClientConnection.cpp ClientConnection.h
+        MIME/MIME_Detector.cpp MIME/MIME_Detector.h
+        Message/Message.cpp Message/Message.h
+        Location/Location.cpp Location/Location.h
+        Location/LocationHandler.cpp Location/LocationHandler.h)
 add_executable(Server ${SOURCE_FILES})
 
 #Boost setup

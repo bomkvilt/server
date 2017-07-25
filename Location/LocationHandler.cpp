@@ -9,7 +9,7 @@ LocationHandler::LocationHandler() {
     DefaultLocation.ResultType = LORT_ERROR;
 }
 
-message::Message LocationHandler::ResolveRequest(const message::Message &Message) {
+message::AMessage LocationHandler::ResolveRequest(const message::AMessage &Message) {
     size_t max = 0;
     auto& Loc  = DefaultLocation;
     auto& Url  = Message.Path;
@@ -33,7 +33,7 @@ LocationHandler& LocationHandler::SetLocations(LocationHandler::FLocations &l) {
     return *this;
 }
 
-LocationHandler& LocationHandler::SetLocation(Location& l) {
+LocationHandler& LocationHandler::SetLocation(ALocation& l) {
     Locations.push_back(l);
     Locations.back().server = server;
     return *this;
@@ -46,7 +46,7 @@ LocationHandler& LocationHandler::SetServer(WPTR(AServer) server) {
     } return *this;
 }
 
-size_t LocationHandler::CalculateRelevant(const Location &l, const std::string &Url) {
+size_t LocationHandler::CalculateRelevant(const ALocation &l, const std::string &Url) {
     const size_t match    = 10000;
     const size_t prefix_f = 200;
     const size_t regex    = 100;
@@ -60,13 +60,13 @@ size_t LocationHandler::CalculateRelevant(const Location &l, const std::string &
     } return 0;
 }
 
-size_t LocationHandler::CalculateMatch(const Location &l, const std::string &Url) {
+size_t LocationHandler::CalculateMatch(const ALocation &l, const std::string &Url) {
     return Url == l.Expr ? 1 : 0;
 }
 
 #define NORMALISE(STR) if (STR.back() != '/') STR += '/'
 
-size_t LocationHandler::CalculatePrefix(const Location &l, std::string Url) {
+size_t LocationHandler::CalculatePrefix(const ALocation &l, std::string Url) {
     std::string Exp = l.Expr;
     NORMALISE(Url);
     NORMALISE(Exp);
@@ -83,7 +83,7 @@ size_t LocationHandler::CalculatePrefix(const Location &l, std::string Url) {
     return factor;
 }
 
-size_t LocationHandler::CalculateRegexp(const Location &l, const std::string &Url) {
+size_t LocationHandler::CalculateRegexp(const ALocation &l, const std::string &Url) {
     std::smatch m;
     std::regex  e(l.Expr);
     return std::regex_search(Url.begin(), Url.end(), m, e) ? 1 : 0;

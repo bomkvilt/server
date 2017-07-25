@@ -8,7 +8,7 @@ using namespace srv::location;
 using namespace srv;
 
 
-message::Message Location::ProcessMessage(const message::Message &Message) {
+message::AMessage ALocation::ProcessMessage(const message::AMessage &Message) {
     switch (ResultType) {
         CASER(LORT_ERROR)       on_error  (Message);
         CASER(LORT_FILE)        on_file   (Message);
@@ -20,11 +20,11 @@ message::Message Location::ProcessMessage(const message::Message &Message) {
     );
 }
 
-PTR(AServer) Location::Server() {
+PTR(AServer) ALocation::Server() {
     return server.lock();
 }
 
-PTR(MIME_Detector) Location::MIME() {
+PTR(MIME_Detector) ALocation::MIME() {
     checkE(Server())
         throw std::runtime_error(
                 " ## Empty reference on server; at " + __LINE__
@@ -32,7 +32,7 @@ PTR(MIME_Detector) Location::MIME() {
     return Server()->GetConfig().MIME;
 }
 
-std::string Location::BaseRoot() {
+std::string ALocation::BaseRoot() {
     checkE(Server())
         throw std::runtime_error(
                 " ## Empty reference on server; at " + __LINE__
@@ -40,7 +40,7 @@ std::string Location::BaseRoot() {
     return Server()->GetConfig().WorkPath;
 }
 
-std::string Location::GetClearPath(std::string Path) {
+std::string ALocation::GetClearPath(std::string Path) {
     auto MItr = Path.begin();
     auto MEnd = Path.end();
     auto EItr = Expr.begin();
@@ -57,25 +57,33 @@ std::string Location::GetClearPath(std::string Path) {
     return Clear;
 }
 
-message::Message Location::on_error(const message::Message &Message) {
-    message::Message tmp;
+message::AMessage ALocation::on_error(const message::AMessage &Message) {
+    message::AMessage tmp;
     tmp.Code.first  = "404";
     tmp.Code.second = "Not found";
     tmp.Body = "";
     return tmp;
 }
 
-message::Message Location::on_file(const message::Message &Message) {
+message::AMessage ALocation::on_file(const message::AMessage &Message) {
     std::string Path = BaseRoot() + Root + GetClearPath(Message.Path);
+    SWITCH(Message.Method) {
+        CASERM("GET")   on_file_r(Message, Path);
+        CASERM("POST")  on_file_w(Message, Path);
+    }}
+return on_error(Message);
+}
+
+message::AMessage ALocation::on_file_r(const message::AMessage& Message, const std::string& Path) {
     std::ifstream in(Path);
     in >> std::noskipws;
-    check(in.is_open() && server.lock())
-        on_error(Message);
+    check(in.is_open() && Server())
+                on_error(Message);
 
-    auto Reponse = message::Message();
-    std::copy(std::istream_iterator<char>(in),
-              std::istream_iterator<char>(),
-              std::back_inserter(Reponse.Body)
+    message::AMessage Reponse;
+    std::copy(std::istream_iterator<char>(in)
+            , std::istream_iterator<char>()
+            , std::back_inserter(Reponse.Body)
     );
 
     Reponse .SetCode     ("200","OK")
@@ -87,13 +95,31 @@ message::Message Location::on_file(const message::Message &Message) {
     return Reponse;
 }
 
-message::Message Location::on_app(const message::Message &Message) {
+message::AMessage ALocation::on_file_w(const message::AMessage& Message, const std::string& Path) {
+    std::ofstream out(Path);
+    out << std::noskipws;
+    check(out.is_open() && Server())
+                on_error(Message);
+
+    std::copy(Message.Body.begin()
+            , Message.Body.end()
+            , std::ostream_iterator<char>(out));
+
+    message::AMessage Reponse;
+    Reponse .SetCode     ("200","OK")
+            .SetProtocol ("HTTP/1.1")
+            .SetDirective("Content-Length",      std::to_string(Reponse.Body.size()))
+            .SetDirective("Connection",          "close");
+    return Reponse;
+}
+
+message::AMessage ALocation::on_app(const message::AMessage &Message) {
     check(AppBack)
         on_error(Message);
     return AppBack(Message);
 }
 
-message::Message Location::on_control(const message::Message& Message) {
+message::AMessage ALocation::on_control(const message::AMessage& Message) {
     check(ControlBack && Server())
         on_error(Message);
     return ControlBack(Message, Server());

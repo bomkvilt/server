@@ -2,15 +2,16 @@
 #include <regex>
 #include <iostream>
 #include "Message.h"
+#include "../Service.h"
 
 
 using namespace srv::message;
 
-Message::Message(const std::string& MSG) {
+AMessage::AMessage(const std::string& MSG) {
     SetData(MSG);
 }
 
-Message::Message(boost::asio::streambuf& MSG) {
+AMessage::AMessage(boost::asio::streambuf& MSG) {
     std::istream in(&MSG);
     in >> std::noskipws;
 
@@ -24,35 +25,35 @@ Message::Message(boost::asio::streambuf& MSG) {
 
 
 
-bool Message::isReponse() {
+bool AMessage::isReponse() {
     return Method.size() == 0;
 }
 
-Message &Message::SetMethod(std::string Method) {
+AMessage &AMessage::SetMethod(std::string Method) {
     this->Method = Method;
     return *this;
 }
 
-Message &Message::SetProtocol(std::string Protocol) {
+AMessage &AMessage::SetProtocol(std::string Protocol) {
     this->Protocol = Protocol;
     return *this;
 }
 
-Message& Message::SetCode(const Message::FDirective& Code) {
+AMessage& AMessage::SetCode(const AMessage::FDirective& Code) {
     return SetCode(Code.first, Code.second);
 }
 
-Message& Message::SetCode(const std::string Code, const std::string Description) {
+AMessage& AMessage::SetCode(const std::string Code, const std::string Description) {
     this->Code.first  = Code;
     this->Code.second = Description;
     return *this;
 }
 
-Message &Message::SetDirective(const Message::FDirective &Directive) {
+AMessage &AMessage::SetDirective(const AMessage::FDirective &Directive) {
     return SetDirective(Directive.first, Directive.second);
 }
 
-Message& Message::SetData(const std::string& MSG) {
+AMessage& AMessage::SetData(const std::string& MSG) {
     std::stringstream in(MSG);
     in >> std::noskipws;
     std::string Header;
@@ -63,7 +64,8 @@ Message& Message::SetData(const std::string& MSG) {
     ParsHat(Hat);
 //header
     std::string buff;
-    while(std::getline(in, buff) && (buff != "\r" || buff != "")) {
+    while(std::getline(in, buff)) {
+        checkB(buff != "\r" && buff != "");
         Header += buff + "\n";
         buff = "";
     } ParsHeader(Header);
@@ -75,7 +77,7 @@ Message& Message::SetData(const std::string& MSG) {
     return *this;
 }
 
-Message &Message::SetDirective(const std::string Name, const std::string Value) {
+AMessage &AMessage::SetDirective(const std::string Name, const std::string Value) {
     for (auto& itr : Directives)
         if (itr.first == Name) {
             itr.second = Value;
@@ -87,14 +89,14 @@ Message &Message::SetDirective(const std::string Name, const std::string Value) 
 
 
 
-std::string Message::GetDirective(std::string Name) {
+std::string AMessage::GetDirective(std::string Name) {
     for (auto& itr : Directives)
         if (itr.first == Name)
             return itr.second;
     return "";
 }
 
-std::string Message::GetHeader() {
+std::string AMessage::GetHeader() {
     std::string Header =  Hat();
     for (auto& itr : Directives)
         Header += itr.first + ": " + itr.second + "\r\n";
@@ -102,23 +104,23 @@ std::string Message::GetHeader() {
     return Header;
 }
 
-std::string Message::GetMessage() {
+std::string AMessage::GetMessage() {
     return GetHeader() + Body;
 }
 
-std::string Message::Hat() {
+std::string AMessage::Hat() {
     if (isReponse())
         return ResponceHat();
     return RequestHat();
 }
 
-std::string Message::RequestHat() {
+std::string AMessage::RequestHat() {
     return Method       + " "
            + Path       + " "
            + Protocol   + "\r\n";
 }
 
-std::string Message::ResponceHat() {
+std::string AMessage::ResponceHat() {
     return Protocol      + " "
            + Code.first  + " "
            + Code.second + "\r\n";
@@ -127,7 +129,7 @@ std::string Message::ResponceHat() {
 #define SPACE "[[:s:]]+"
 #define LINE  "\r?\n"
 
-void Message::ParsHat(const std::string& Hat) {
+void AMessage::ParsHat(const std::string& Hat) {
     //                         POST                 path               HTTP/1.1
     static std::regex ein  ("([A-Z]+)"    SPACE "([^[:s:]]+)" SPACE "([^[:s:]]+)" LINE);
     static std::regex eout ("([^[:s:]]+)" SPACE "([[:d:]]+)"  SPACE "([^[\r\n]])" LINE);
@@ -146,7 +148,7 @@ void Message::ParsHat(const std::string& Hat) {
     }
 }
 
-void Message::ParsHeader(const std::string& Header) {
+void AMessage::ParsHeader(const std::string& Header) {
     //                     Expires           Sat, 28 Nov 2009 05:36:25 GMT
     static std::regex e("([^[:s:]]+)" ":" SPACE "([^[:s:]^\r^\n]+)" LINE);
 
@@ -156,12 +158,12 @@ void Message::ParsHeader(const std::string& Header) {
         Directives.emplace_back(itr->str(1), itr->str(2));
 }
 
-std::ostream& operator<<(std::ostream &os, Message& msg) {
+std::ostream& operator<<(std::ostream &os, AMessage& msg) {
     os << msg.GetMessage();
     return os;
 }
 
-boost::asio::streambuf& operator<<(boost::asio::streambuf& sb, Message& msg) {
+boost::asio::streambuf& operator<<(boost::asio::streambuf& sb, AMessage& msg) {
     std::ostream os(&sb);
     os << msg.GetMessage();
     return sb;

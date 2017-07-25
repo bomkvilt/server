@@ -40,20 +40,20 @@ namespace Conennection {
     /**
      *
      */
-    class ClientConnection :
-            public srv::enable_weak_from_this<ClientConnection>,
+    class AClientConnection :
+            public srv::enable_weak_from_this<AClientConnection>,
             boost::noncopyable
     {
     public:
-        DEFINE_SELF(ClientConnection);
-        DEFINE_PRS(ClientConnection);
+        DEFINE_SELF(AClientConnection);
+        DEFINE_PRS(AClientConnection);
 
         typedef boost::system::error_code ErrorCode;
         typedef boost::function<void()> on_stop_clb;
 
     protected:  /************************|  |************************/
         //***| Construction |
-        ClientConnection(
+        AClientConnection(
                 io_service &service,
                 ServerConfig& Config
         );
@@ -104,7 +104,7 @@ namespace Conennection {
     protected:  /************************|  |************************/
         void UpdateLastPing();
 
-        void ResolveParametrs(message::Message& Message);
+        void ResolveParametrs(message::AMessage& Message);
 
         void on_error(const ErrorCode &err);
 

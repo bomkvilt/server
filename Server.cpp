@@ -82,7 +82,7 @@ size_t AServer::ClientCount() const {
 /****************************************|  |****************************************/
 
 AServer::client_wptr AServer::NewClient() {
-    auto tmp = ClientConnection::Create(
+    auto tmp = AClientConnection::Create(
             service,
             config,
             MEM_FC1(HandleUnbind, _1)

@@ -47,8 +47,8 @@ namespace srv {
         DEFINE_SELF(AServer);
         DEFINE_PRS(AServer);
 
-        typedef ClientConnection::ptr  client_ptr;
-        typedef ClientConnection::wptr client_wptr;
+        typedef AClientConnection::ptr  client_ptr;
+        typedef AClientConnection::wptr client_wptr;
 
     protected:
         typedef boost::system::error_code ErrorCode;

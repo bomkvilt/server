@@ -15,19 +15,19 @@ namespace location {
     class LocationHandler
     {
     public:
-        typedef std::vector<Location> FLocations;
+        typedef std::vector<ALocation> FLocations;
 
     public:
         LocationHandler();
 
-        message::Message ResolveRequest(const message::Message &Message);
+        message::AMessage ResolveRequest(const message::AMessage &Message);
 
         FLocations& GetLocations();
         LocationHandler& SetLocations(FLocations& l);
-        LocationHandler& SetLocation(Location& l);
+        LocationHandler& SetLocation(ALocation& l);
 
     protected:
-        Location     DefaultLocation;
+        ALocation     DefaultLocation;
         FLocations   Locations;
         WPTR(AServer) server;
 
@@ -35,10 +35,10 @@ namespace location {
         LocationHandler& SetServer(WPTR(AServer) server);
 
     protected:
-        size_t CalculateRelevant(const Location& l, const std::string& Url);
-        size_t CalculateMatch   (const Location& l, const std::string& Url);
-        size_t CalculatePrefix  (const Location& l,       std::string  Url);
-        size_t CalculateRegexp  (const Location& l, const std::string& Url);
+        size_t CalculateRelevant(const ALocation& l, const std::string& Url);
+        size_t CalculateMatch   (const ALocation& l, const std::string& Url);
+        size_t CalculatePrefix  (const ALocation& l,       std::string  Url);
+        size_t CalculateRegexp  (const ALocation& l, const std::string& Url);
     };
 
 }

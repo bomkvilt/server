@@ -12,17 +12,17 @@ namespace message {
     /**
      *
      */
-    class Message {
+    class AMessage {
     public:
         typedef std::pair<std::string, std::string> FDirective;
         typedef std::vector<FDirective> FDirectives;
 
     public:
-        Message()               = default;
-        Message(const Message&) = default;
-        Message(const std::string&      MSG);
-        Message(boost::asio::streambuf& MSG);
-        virtual ~Message() = default;
+        AMessage()               = default;
+        AMessage(const AMessage&) = default;
+        AMessage(const std::string&      MSG);
+        AMessage(boost::asio::streambuf& MSG);
+        virtual ~AMessage() = default;
 
     public:
         std::string Method;
@@ -37,16 +37,16 @@ namespace message {
         bool isReponse();
 
     public:
-        Message& SetMethod  (std::string Method);
-        Message& SetProtocol(std::string Protocol);
+        AMessage& SetMethod  (std::string Method);
+        AMessage& SetProtocol(std::string Protocol);
 
-        Message& SetCode(const FDirective& Code);
-        Message& SetCode(const std::string Code, const std::string Description);
+        AMessage& SetCode(const FDirective& Code);
+        AMessage& SetCode(const std::string Code, const std::string Description);
 
-        Message& SetDirective(const FDirective &Directive);
-        Message& SetDirective(const std::string Name, const std::string Value);
+        AMessage& SetDirective(const FDirective &Directive);
+        AMessage& SetDirective(const std::string Name, const std::string Value);
 
-        Message& SetData(const std::string& MSG);
+        AMessage& SetData(const std::string& MSG);
 
     public:
         std::string GetDirective(std::string Name);
@@ -65,7 +65,7 @@ namespace message {
 }
 }
 
-std::ostream&           operator<<(std::ostream& os,           srv::message::Message& msg);
-boost::asio::streambuf& operator<<(boost::asio::streambuf& sb, srv::message::Message& msg);
+std::ostream&           operator<<(std::ostream& os,           srv::message::AMessage& msg);
+boost::asio::streambuf& operator<<(boost::asio::streambuf& sb, srv::message::AMessage& msg);
 
 #endif //SERVER_MESSAGE_H

@@ -15,10 +15,10 @@ using namespace srv::Conennection;
 ClientStates::ClientStates(io_service &service) :
     bStarted(false),
     Timer(service),
-    Timeout(7000)
+    Timeout(200000)
 {}
 
-ClientConnection::ClientConnection(
+AClientConnection::AClientConnection(
         io_service& service,
         ServerConfig& Config
 ) :
@@ -29,23 +29,23 @@ ClientConnection::ClientConnection(
     WriteBiffer()
 {}
 
-ClientConnection::ptr ClientConnection::Create(
+AClientConnection::ptr AClientConnection::Create(
         io_service& service,
         ServerConfig& Config
 ) {
-    return ptr(new ClientConnection(service, Config));
+    return ptr(new AClientConnection(service, Config));
 }
 
 /****************************************|  |****************************************/
 
-void ClientConnection::Start() {
+void AClientConnection::Start() {
     states.bStarted = 1;
     UpdateLastPing();
 
     do_read();
 }
 
-void ClientConnection::Stop() {
+void AClientConnection::Stop() {
     check(states.bStarted);
     states.bStarted = 0;
     states.Timer.cancel();
@@ -56,26 +56,26 @@ void ClientConnection::Stop() {
 
 /****************************************|  |****************************************/
 
-ClientStates& ClientConnection::GetStates() {
+ClientStates& AClientConnection::GetStates() {
     return states;
 }
 
-ip::tcp::socket& ClientConnection::Socket() {
+ip::tcp::socket& AClientConnection::Socket() {
     return socket;
 }
 
 /****************************************|  |****************************************/
 
-void ClientConnection::UpdateLastPing() {
+void AClientConnection::UpdateLastPing() {
     states.LastPing = boost::posix_time::microsec_clock::local_time();
 }
 
-void ClientConnection::ResolveParametrs(message::Message& Message) {
+void AClientConnection::ResolveParametrs(message::AMessage& Message) {
     if (Message.GetDirective("Connection") == "close")
         Stop();
 }
 
-void ClientConnection::on_error(const ErrorCode& err) {
+void AClientConnection::on_error(const ErrorCode& err) {
     check(states.bStarted);
     std::cout << " -- Connection Error: " << err.message() << std::endl;
     Stop();
@@ -83,7 +83,7 @@ void ClientConnection::on_error(const ErrorCode& err) {
 
 /****************************************|  |****************************************/
 
-void ClientConnection::do_read() {
+void AClientConnection::do_read() {
     check(states.bStarted);
     async_read_until(
             socket,
@@ -94,7 +94,7 @@ void ClientConnection::do_read() {
     do_ping();
 }
 
-void ClientConnection::do_write() {
+void AClientConnection::do_write() {
     check(states.bStarted);
     async_write(
             socket,
@@ -103,29 +103,29 @@ void ClientConnection::do_write() {
     );
 }
 
-void ClientConnection::do_ping() {
+void AClientConnection::do_ping() {
     states.Timer.expires_from_now(states.Timeout);
     states.Timer.async_wait(MEM_FN(on_ping_check));
 }
 
 /****************************************|  |****************************************/
 
-void ClientConnection::on_read(const ErrorCode& err, size_t bytes) {
+void AClientConnection::on_read(const ErrorCode& err, size_t bytes) {
     check(!err) on_error(err);      //TODO: check try again
 
-    message::Message taken   = (ReadBuffer);
-    message::Message reponse = Config.Locations.ResolveRequest(taken);
+    message::AMessage taken   = (ReadBuffer);
+    message::AMessage reponse = Config.Locations.ResolveRequest(taken);
     WriteBiffer << reponse;
     do_write();
     ResolveParametrs(taken);
 }
 
-void ClientConnection::on_write(const ClientConnection::ErrorCode &err, size_t bytes) {
+void AClientConnection::on_write(const AClientConnection::ErrorCode &err, size_t bytes) {
     check(!err) on_error(err);      //TODO: check try again
     do_read();
 }
 
-void ClientConnection::on_ping_check() {
+void AClientConnection::on_ping_check() {
     auto now = Time::microsec_clock::local_time();
     if ((now - states.LastPing) > states.Timeout) {
         Stop();

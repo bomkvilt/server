@@ -5,8 +5,8 @@
 
 using namespace srv;
 
-message::Message ExampleApp(const message::Message& MSG) {
-    auto Reponse = message::Message();
+message::AMessage ExampleApp(const message::AMessage& MSG) {
+    auto Reponse = message::AMessage();
     Reponse.Body = "U required page " + MSG.Path + ".\r\n"
                    "We sorry, but the page is not available";
 
@@ -19,11 +19,11 @@ message::Message ExampleApp(const message::Message& MSG) {
     return Reponse;
 }
 
-message::Message ExampleControl(const message::Message& MSG, PTR(AServer) Server) {
+message::AMessage ExampleControl(const message::AMessage& MSG, PTR(AServer) Server) {
     Server->GetConfig().Port = 8002;
     Server->Refresh();
 
-    message::Message Reponse;
+    message::AMessage Reponse;
     Reponse.Body = "Migrated to port 8002";
     Reponse .SetCode    ("200", "OK")
             .SetProtocol("HTTP/1.1")
@@ -43,21 +43,21 @@ int main(int argc, char* argv[]) {
     uint16_t Port = argc == 1 ? (uint16_t)8001 : boost::lexical_cast<uint16_t>(argv[1]);
 
     // file server location
-    location::Location FileLocation;
+    location::ALocation FileLocation;
     FileLocation.ResultType = location::LORT_FILE;
     FileLocation.ExprType   = location::LEXT_PREFIX;
     FileLocation.Expr       = "/get";
     FileLocation.Root       = "";
 
     // application server location
-    location::Location AppLocation;
+    location::ALocation AppLocation;
     AppLocation.ResultType = location::LORT_APP;
     AppLocation.ExprType   = location::LEXT_PREFIX;
     AppLocation.Expr       = "/app";
     AppLocation.AppBack    = MEM_FF1(ExampleApp, _1);
 
     // application server location
-    location::Location ControlLocation;
+    location::ALocation ControlLocation;
     ControlLocation.ResultType  = location::LORT_CONTROLL;
     ControlLocation.ExprType    = location::LEXT_PREFIX;
     ControlLocation.Expr        = "/admin";

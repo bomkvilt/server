@@ -28,12 +28,12 @@ namespace location {
     /**
      *
      */
-    class Location
+    class ALocation
     {
         friend class LocationHandler;
     public:
-        typedef boost::function<message::Message(const message::Message&             )> AppBack_clb;
-        typedef boost::function<message::Message(const message::Message&, PTR(AServer))> Control_clb;
+        typedef boost::function<message::AMessage(const message::AMessage&             )> AppBack_clb;
+        typedef boost::function<message::AMessage(const message::AMessage&, PTR(AServer))> Control_clb;
 
     public:
         EExprType    ExprType;
@@ -46,7 +46,7 @@ namespace location {
         WPTR(AServer) server;
 
     public:
-        message::Message ProcessMessage(const message::Message &Message);
+        message::AMessage ProcessMessage(const message::AMessage &Message);
 
     protected:
         PTR(AServer)       Server();
@@ -55,10 +55,12 @@ namespace location {
 
         std::string GetClearPath(std::string Path);
 
-        message::Message on_error  (const message::Message& Message);
-        message::Message on_file   (const message::Message& Message);
-        message::Message on_app    (const message::Message& Message);
-        message::Message on_control(const message::Message& Message);
+        message::AMessage on_error  (const message::AMessage& Message);
+        message::AMessage on_file   (const message::AMessage& Message);
+        message::AMessage on_file_r (const message::AMessage& Message, const std::string& Path);
+        message::AMessage on_file_w (const message::AMessage& Message, const std::string& Path);
+        message::AMessage on_app    (const message::AMessage& Message);
+        message::AMessage on_control(const message::AMessage& Message);
     };
 }
 }

@@ -18,7 +18,7 @@ namespace srv
             public srv::enable_weak_from_this<MIME_Detector>
     {
     protected:
-        typedef std::map<std::string, std::string> FMIME_table;
+        typedef std::map<std::string, std::string> UMIME_table;
 
     public:
         DEFINE_SELF(MIME_Detector);
@@ -40,7 +40,7 @@ namespace srv
         std::string GetMIME(const std::string& FileName);
 
     protected:
-        FMIME_table MIME_table;
+        UMIME_table MIME_table;
     };
 }
 
