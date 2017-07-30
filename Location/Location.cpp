@@ -8,6 +8,10 @@ using namespace srv::location;
 using namespace srv;
 
 
+ALocation::ALocation(LInstigator Instigator)
+    : Instigator(Instigator)
+{}
+
 message::AMessage ALocation::ProcessMessage(const message::AMessage &Message) {
     switch (ResultType) {
         CASER(LORT_ERROR)       on_error  (Message);
@@ -25,7 +29,7 @@ PTR(AServer) ALocation::Server() {
 }
 
 PTR(MIME_Detector) ALocation::MIME() {
-    checkE(Server())
+    check(Server())
         throw std::runtime_error(
                 " ## Empty reference on server; at " + __LINE__
         );
@@ -33,7 +37,7 @@ PTR(MIME_Detector) ALocation::MIME() {
 }
 
 std::string ALocation::BaseRoot() {
-    checkE(Server())
+    check(Server())
         throw std::runtime_error(
                 " ## Empty reference on server; at " + __LINE__
         );
@@ -58,11 +62,7 @@ std::string ALocation::GetClearPath(std::string Path) {
 }
 
 message::AMessage ALocation::on_error(const message::AMessage &Message) {
-    message::AMessage tmp;
-    tmp.Code.first  = "404";
-    tmp.Code.second = "Not found";
-    tmp.Body = "";
-    return tmp;
+    return message::NotFoundMessage();
 }
 
 message::AMessage ALocation::on_file(const message::AMessage &Message) {
@@ -71,13 +71,13 @@ message::AMessage ALocation::on_file(const message::AMessage &Message) {
         CASERM("GET")   on_file_r(Message, Path);
         CASERM("POST")  on_file_w(Message, Path);
     }}
-return on_error(Message);
+    return on_error(Message);
 }
 
 message::AMessage ALocation::on_file_r(const message::AMessage& Message, const std::string& Path) {
     std::ifstream in(Path);
     in >> std::noskipws;
-    check(in.is_open() && Server())
+    checkR(in.is_open() && Server())
                 on_error(Message);
 
     message::AMessage Reponse;
@@ -97,7 +97,7 @@ message::AMessage ALocation::on_file_r(const message::AMessage& Message, const s
 message::AMessage ALocation::on_file_w(const message::AMessage& Message, const std::string& Path) {
     std::ofstream out(Path);
     out << std::noskipws;
-    check(out.is_open() && Server())
+    checkR(out.is_open() && Server())
                 on_error(Message);
 
     std::copy(Message.Body.begin()
@@ -112,13 +112,13 @@ message::AMessage ALocation::on_file_w(const message::AMessage& Message, const s
 }
 
 message::AMessage ALocation::on_app(const message::AMessage &Message) {
-    check(AppBack)
+    checkR(AppBack)
         on_error(Message);
     return AppBack(Message);
 }
 
 message::AMessage ALocation::on_control(const message::AMessage& Message) {
-    check(ControlBack && Server())
+    checkR(ControlBack && Server())
         on_error(Message);
     return ControlBack(Message, Server());
 }

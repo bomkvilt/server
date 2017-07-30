@@ -10,7 +10,7 @@ ServerConfig::ServerConfig() :
     Port            (8001),
     WorkPath        (""),
     MIME_Path       (""),
-    AccessLog       (std::cout),
+    SuccessLog       (std::cout),
     ErrorLog        (std::cerr),
     MIME            (nullptr)
     //MaxConections   (1024)
@@ -36,7 +36,7 @@ AServer::~AServer() {
 /****************************************|  |****************************************/
 
 void AServer::Start() {
-    config.AccessLog << "Server is started "
+    config.SuccessLog << "Server is started "
                     << std::endl;
     config.bStarted = 1;
     update_dependencies();
@@ -45,8 +45,8 @@ void AServer::Start() {
 }
 
 void AServer::Stop() {
-    check(config.bStarted);
-    config.AccessLog << "Server is stopping.."
+    checkR(config.bStarted);
+    config.SuccessLog << "Server is stopping.."
                      << std::endl;
 
     config.bStarted = 0;
@@ -54,13 +54,13 @@ void AServer::Stop() {
     service.stop();
     acceptor.cancel();
 
-    config.AccessLog << "Server stopped"
+    config.SuccessLog << "Server stopped"
                     << std::endl;
 }
 
 void AServer::Refresh() {
     update_dependencies();
-    config.AccessLog << "Server updated"
+    config.SuccessLog << "Server refreshed"
                      << std::endl;
 }
 
@@ -84,9 +84,11 @@ size_t AServer::ClientCount() const {
 AServer::client_wptr AServer::NewClient() {
     auto tmp = AClientConnection::Create(
             service,
-            config,
-            MEM_FC1(HandleUnbind, _1)
+            config
     );
+    tmp ->SetStopCallback   (MEM_FT1(HandleUnbind,  _1    ))
+        ->SetNewUserCallback(MEM_FT2(HandleNewUser, _1, _2));
+
     clients.push_back(tmp);
     return clients.back()->weak_from_this();
 }
@@ -94,8 +96,8 @@ AServer::client_wptr AServer::NewClient() {
 /****************************************|  |****************************************/
 
 void AServer::HandleAccept(AServer::client_wptr Client, const AServer::ErrorCode &Err) {
-    config.AccessLog << " -- Client connected"
-                    << std::endl;
+    config.SuccessLog << " -- Client connected"
+                     << std::endl;
     Client.lock()->Start();
     do_accept();
 }
@@ -105,7 +107,7 @@ void AServer::HandleUnbind(AServer::client_wptr Client) {
     auto itr    = std::find(clients.begin(), clients.end(), shared);
     clients.erase(itr);
 
-    config.AccessLog << " -- Client disconnected; "
+    config.SuccessLog << " -- Client disconnected; "
                     << "clients: " << ClientCount()
                     << std::endl;
 }
@@ -114,14 +116,35 @@ void AServer::do_accept() {
     auto Client = NewClient();
     acceptor.async_accept(
             Client.lock()->Socket(),
-            MEM_FC2(HandleAccept, Client, _1)
+            MEM_FT2(HandleAccept, Client, _1)
     );
 }
 
 void AServer::update_dependencies() {
     config.MIME->UpdateBase(config.MIME_Path);
     config.Locations.SetServer(weak_from_this());
-    try { // if acceptor=>Port == config.Port
+
+    try { // if acceptor=>Port == config.Port //TODO
         acceptor = ip::tcp::acceptor(service, ip::tcp::endpoint(ip::tcp::v4(), config.Port));
-    } catch(...) {}
+    } catch(...) {
+        config.ErrorLog << " ## An error in a process of acceptor creation"
+                        << std::endl;
+    }
+}
+
+
+
+void AServer::HandleNewUser(int guid, const std::string& key) {
+    config.Users.emplace(guid, key);
+    create_user_derectory(guid);
+    add_user_to_index(guid);
+}
+
+void AServer::add_user_to_index(int guid)
+{
+    // here it's recuired to add the guid to search service
+}
+
+void AServer::create_user_derectory(int guid) {
+    // create a folder in a workspace and add required files
 }

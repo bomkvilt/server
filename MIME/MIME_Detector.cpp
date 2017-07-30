@@ -23,7 +23,7 @@ MIME_Detector::ptr MIME_Detector::Create(const std::string& Path) {
 
 void MIME_Detector::UpdateBase(const std::string &Path) {
     std::ifstream in(Path);
-    check(in.is_open());
+    checkR(in.is_open());
 
     std::string tmp;
     in >> std::noskipws;

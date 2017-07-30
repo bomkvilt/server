@@ -32,20 +32,25 @@ namespace location {
     {
         friend class LocationHandler;
     public:
-        typedef boost::function<message::AMessage(const message::AMessage&             )> AppBack_clb;
+        typedef boost::function<message::AMessage(const message::AMessage&              )> AppBack_clb;
         typedef boost::function<message::AMessage(const message::AMessage&, PTR(AServer))> Control_clb;
+        typedef void* LInstigator;
 
     public:
-        EExprType    ExprType;
-        EResultType  ResultType;
-        std::string  Expr;         // path, prefix or regular expression
-        std::string  Root;         // path to fails relative server root(@BaseRoot)
-        AppBack_clb  AppBack;      // application callback
-        Control_clb  ControlBack;  // callback for server control
+        EExprType   ExprType;
+        EResultType ResultType;
+        std::string Expr;         // path, prefix or regular expression
+        std::string Root;         // path to fails relative server root(@BaseRoot)
+        AppBack_clb AppBack;      // application callback
+        Control_clb ControlBack;  // callback for server control
+        LInstigator Instigator;
+
     protected:
         WPTR(AServer) server;
 
     public:
+        ALocation(LInstigator Instigator = nullptr);
+
         message::AMessage ProcessMessage(const message::AMessage &Message);
 
     protected:

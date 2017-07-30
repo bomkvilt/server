@@ -6,28 +6,41 @@
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 
+#include <map>
+#include <list>
+
 #include "Service.h"
 #include "MIME/MIME_Detector.h"
 #include "Location/LocationHandler.h"
 #include "ClientConnection.h"
 
 namespace srv {
-    using namespace Conennection;
+    using namespace conennection;
+    using namespace message;
+
 
     /**
      *
      */
     struct ServerConfig {
+        typedef std::map<int, const std::string> LUsers;
+        typedef std::list<int>                   LServers;
+    public:
         bool bStarted;
         //bool bAccept;
 
-        unsigned short            Port;
-        std::string               WorkPath;
-        std::string               MIME_Path;
-        std::ostream&             AccessLog;
-        std::ostream&             ErrorLog;
-        MIME_Detector::ptr        MIME;
-        location::LocationHandler Locations;
+        unsigned short Port;
+        std::string         WorkPath;
+        std::string         MIME_Path;
+
+        std::ostream&       SuccessLog;
+        std::ostream&       ErrorLog;
+
+        MIME_Detector::ptr  MIME;
+        LocationHandler     Locations;
+
+        LUsers              Users;
+        LServers            Servers;
 
         //size_t MaxConnections;
 
@@ -49,6 +62,9 @@ namespace srv {
 
         typedef AClientConnection::ptr  client_ptr;
         typedef AClientConnection::wptr client_wptr;
+
+
+        typedef std::vector<client_ptr>     LClients;
 
     protected:
         typedef boost::system::error_code ErrorCode;
@@ -73,7 +89,7 @@ namespace srv {
         io_service        service;
         ip::tcp::acceptor acceptor;
 
-        std::vector<client_ptr> clients;
+        LClients clients;
 
     public:
         //***| Getters && Setters |
@@ -91,6 +107,15 @@ namespace srv {
         void do_accept();
 
         void update_dependencies();
+
+    protected:  /************************|  |************************/
+
+        void HandleNewUser(int guid, const std::string& key);
+
+        void add_user_to_index(int guid);
+
+        void create_user_derectory(int guid);
+
     };
 
 

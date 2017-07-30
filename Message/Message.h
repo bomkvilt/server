@@ -14,14 +14,15 @@ namespace message {
      */
     class AMessage {
     public:
-        typedef std::pair<std::string, std::string> UDirective;
-        typedef std::vector<UDirective> UDirectives;
+        typedef std::pair<std::string, std::string> LDirective;
+        typedef std::vector<LDirective>             LDirectives;
 
     public:
-        AMessage()               = default;
+        AMessage()                = default;
         AMessage(const AMessage&) = default;
         AMessage(const std::string&      MSG);
         AMessage(boost::asio::streambuf& MSG);
+        AMessage(const std::string& Code, const std::string Description, bool bClose = false);
         virtual ~AMessage() = default;
 
     public:
@@ -29,8 +30,8 @@ namespace message {
         std::string Protocol;
 
         std::string Path;
-        UDirective  Code;
-        UDirectives Directives;
+        LDirective  Code;
+        LDirectives Directives;
         std::string Body;
 
     public:
@@ -40,10 +41,10 @@ namespace message {
         AMessage& SetMethod  (std::string Method);
         AMessage& SetProtocol(std::string Protocol);
 
-        AMessage& SetCode(const UDirective& Code);
+        AMessage& SetCode(const LDirective& Code);
         AMessage& SetCode(const std::string Code, const std::string Description);
 
-        AMessage& SetDirective(const UDirective &Directive);
+        AMessage& SetDirective(const LDirective &Directive);
         AMessage& SetDirective(const std::string Name, const std::string Value);
 
         AMessage& SetData(const std::string& MSG);
@@ -57,13 +58,21 @@ namespace message {
         std::string Hat();
         std::string RequestHat();
         std::string ResponceHat();
-        std::string GetLine(const UDirective& d);
+        std::string GetLine(const LDirective& d);
 
         void do_preprocess();
         void ParsHat   (const std::string& Hat);
         void ParsHeader(const std::string& Header);
+
+    public:
+        std::string& operator[](const std::string& Name);
     };
 
+    // 200 OK
+    AMessage SuccessMessage(bool bClose = true);
+
+    // 404 NotFound
+    AMessage NotFoundMessage();
 }
 }
 

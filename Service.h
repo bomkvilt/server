@@ -5,9 +5,10 @@
 
 /**************************************|  |**************************************/
 
-#define checkE(EXP)     if (!(EXP))
-#define check(EXP)      if (!(EXP))     return
-#define checkB(EXP)     if (!(EXP))     break
+#define check(EXP)      if(!(EXP))
+#define checkR(EXP)     check(EXP)      return
+#define checkB(EXP)     check(EXP)      break
+#define checkC(EXP)     check(EXP)      continue
 
 /**************************************| Switch-case |**************************************/
 
@@ -21,9 +22,9 @@
 
 template <typename _Tp, typename _Tq, size_t _Np, size_t _Nq>
 bool Comparator(_Tp (&l)[_Np], _Tq (&r)[_Nq]) {
-    check(_Np == _Nq) false;
+    checkR(_Np == _Nq) false;
     for (size_t i = 0; i < _Np; ++i)
-        check(l[i] == r[i]) false;
+        checkR(l[i] == r[i]) false;
     return true;
 };
 
@@ -49,18 +50,18 @@ bool Comparator(_Tp l, _Tq r)
 
 /**************************************| Functions bind |**************************************/
 
-#define MEM_FF(x)       boost::bind(x)
-#define MEM_FF1(x,y)    boost::bind(x, y)
-#define MEM_FF2(x,y,z)  boost::bind(x, y,z)
-#define MEM_FF3(x,y,z,p)boost::bind(x, y,z,p)
+#define MEM_FN(x)       boost::bind(x)
+#define MEM_FN1(x,y)    boost::bind(x, y)
+#define MEM_FN2(x,y,z)  boost::bind(x, y,z)
+#define MEM_FN3(x,y,z,p)boost::bind(x, y,z,p)
 
-#define MEM_FN(x)       MEM_FF1(&self_type::x, shared_from_this())
-#define MEM_FN1(x,y)    MEM_FF2(&self_type::x, shared_from_this(),y)
-#define MEM_FN2(x,y,z)  MEM_FF3(&self_type::x, shared_from_this(),y,z)
+#define MEM_FS(x)       MEM_FN1(&self_type::x, shared_from_this())
+#define MEM_FS1(x,y)    MEM_FN2(&self_type::x, shared_from_this(),y)
+#define MEM_FS2(x,y,z)  MEM_FN3(&self_type::x, shared_from_this(),y,z)
 
-#define MEM_FC(x)       MEM_FF1(&self_type::x, this)
-#define MEM_FC1(x,y)    MEM_FF2(&self_type::x, this,y)
-#define MEM_FC2(x,y,z)  MEM_FF3(&self_type::x, this,y,z)
+#define MEM_FT(x)       MEM_FN1(&self_type::x, this)
+#define MEM_FT1(x,y)    MEM_FN2(&self_type::x, this,y)
+#define MEM_FT2(x,y,z)  MEM_FN3(&self_type::x, this,y,z)
 
 /**************************************| smart ptrs |**************************************/
 

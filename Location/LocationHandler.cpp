@@ -9,24 +9,30 @@ LocationHandler::LocationHandler() {
     DefaultLocation.ResultType = LORT_ERROR;
 }
 
-message::AMessage LocationHandler::ResolveRequest(const message::AMessage &Message) {
+message::AMessage LocationHandler::ResolveRequest(
+        const message::AMessage &Message,
+        LocationHandler::LInstigator Instigator
+) {
     size_t max = 0;
     auto& Loc  = DefaultLocation;
     auto& Url  = Message.Path;
     for (auto& i : Locations) {
+        checkC(i.Instigator == Instigator || !i.Instigator);
+
         size_t tmp = CalculateRelevant(i, Url);
         if (tmp && tmp >= max) {
             max = tmp;
             Loc = i;
-    }}
+        }
+    }
     return Loc.ProcessMessage(Message);
 }
 
-LocationHandler::FLocations &LocationHandler::GetLocations() {
+LocationHandler::LLocations &LocationHandler::GetLocations() {
     return Locations;
 }
 
-LocationHandler& LocationHandler::SetLocations(LocationHandler::FLocations &l) {
+LocationHandler& LocationHandler::SetLocations(LocationHandler::LLocations &l) {
     Locations.clear();
     for (auto& i : l)
         SetLocation(i);

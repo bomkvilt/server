@@ -15,21 +15,26 @@ namespace location {
     class LocationHandler
     {
     public:
-        typedef std::vector<ALocation> FLocations;
+        typedef std::vector<ALocation> LLocations;
+        typedef ALocation::LInstigator LInstigator;
 
     public:
         LocationHandler();
 
-        message::AMessage ResolveRequest(const message::AMessage &Message);
+        message::AMessage ResolveRequest(
+                const message::AMessage &Message,
+                LInstigator Instigator = nullptr
+        );
 
-        FLocations& GetLocations();
-        LocationHandler& SetLocations(FLocations& l);
-        LocationHandler& SetLocation(ALocation& l);
+        LLocations& GetLocations();
+        LocationHandler& SetLocations(LLocations& l);
+        LocationHandler& SetLocation (ALocation&  l);
 
     protected:
-        ALocation     DefaultLocation;
-        FLocations   Locations;
-        WPTR(AServer) server;
+        ALocation       DefaultLocation; //TODO::static ?
+        LLocations      Locations;  // global  locations
+        LLocations      Locations_p;// private locations
+        WPTR(AServer)   server;
 
     public:
         LocationHandler& SetServer(WPTR(AServer) server);

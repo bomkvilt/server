@@ -23,6 +23,12 @@ AMessage::AMessage(boost::asio::streambuf& MSG) {
     SetData(tmp);
 }
 
+AMessage::AMessage(const std::string& Code, const std::string Description, bool bClose)
+    : Code(Code, Description)
+{
+    if (bClose) { (*this)["Connection"] = "close";      }
+    else        { (*this)["Connection"] = "Keep-Alive"; }
+}
 
 
 bool AMessage::isReponse() {
@@ -39,7 +45,7 @@ AMessage &AMessage::SetProtocol(std::string Protocol) {
     return *this;
 }
 
-AMessage& AMessage::SetCode(const AMessage::UDirective& Code) {
+AMessage& AMessage::SetCode(const AMessage::LDirective& Code) {
     return SetCode(Code.first, Code.second);
 }
 
@@ -49,7 +55,7 @@ AMessage& AMessage::SetCode(const std::string Code, const std::string Descriptio
     return *this;
 }
 
-AMessage &AMessage::SetDirective(const AMessage::UDirective &Directive) {
+AMessage &AMessage::SetDirective(const AMessage::LDirective &Directive) {
     return SetDirective(Directive.first, Directive.second);
 }
 
@@ -133,7 +139,7 @@ std::string AMessage::ResponceHat() {
            + Code.second + "\r\n";
 }
 
-std::string AMessage::GetLine(const UDirective& d) {
+std::string AMessage::GetLine(const LDirective& d) {
     return d.first + ": " + d.second + "\r\n";
 }
 
@@ -175,6 +181,10 @@ void AMessage::ParsHeader(const std::string& Header) {
         Directives.emplace_back(itr->str(1), itr->str(2));
 }
 
+std::string& AMessage::operator[](const std::string& Name) {
+    return GetDirective(Name);
+}
+
 std::ostream& operator<<(std::ostream &os, AMessage& msg) {
     os << msg.GetMessage();
     return os;
@@ -184,4 +194,14 @@ boost::asio::streambuf& operator<<(boost::asio::streambuf& sb, AMessage& msg) {
     std::ostream os(&sb);
     os << msg.GetMessage();
     return sb;
+}
+
+AMessage srv::message::SuccessMessage(bool bClose) {
+    AMessage Message("200", "OK", bClose);
+    return Message;
+}
+
+AMessage srv::message::NotFoundMessage() {
+    AMessage Message("404", "Not found", true);
+    return Message;
 }
